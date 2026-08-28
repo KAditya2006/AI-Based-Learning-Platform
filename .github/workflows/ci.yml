@@ -1,0 +1,51 @@
+name: MoSPI Platform CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Type Check (API)
+      run: npm run typecheck --workspace=api
+
+    - name: Run Tests (API)
+      run: npm test --workspace=api
+      env:
+        JWT_SECRET: test_secret_key_ci_environment
+
+    - name: Build (API)
+      run: npm run build --workspace=api
+
+    - name: Build (Web)
+      run: npm run build --workspace=web
+
+  docker-build:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build API Image
+      run: docker build -t mospi-api:latest -f apps/api/Dockerfile .
+
+    - name: Build Web Image
+      run: docker build -t mospi-web:latest -f apps/web/Dockerfile .

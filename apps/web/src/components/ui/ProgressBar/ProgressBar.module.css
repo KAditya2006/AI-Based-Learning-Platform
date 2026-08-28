@@ -1,0 +1,20 @@
+.progressWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.barContainer {
+  width: 100%;
+  background-color: var(--color-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  height: 0.5rem;
+}
+
+.bar {
+  height: 100%;
+  background-color: var(--color-primary-600);
+  transition: width 0.3s ease-in-out;
+}
