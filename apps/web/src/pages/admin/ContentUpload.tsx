@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Upload, FileText, CheckCircle, Clock } from 'lucide-react';
+import { Input } from '../../components/ui/Input';
+import { Upload, FileText, CheckCircle, Clock, Sparkles } from 'lucide-react';
 import { materialsApi, Material } from '../../api/materials';
 
 export const ContentUpload = () => {
@@ -29,14 +30,9 @@ export const ContentUpload = () => {
     if (!title.trim()) return;
     setUploading(true);
     try {
-      // Simulate file upload metadata
       const newMat = await materialsApi.uploadMaterial({
-        title,
-        filename: `${title.replace(/\s/g, '_')}.pdf`,
-        mimeType: 'application/pdf',
-        sizeBytes: 1048576 // 1MB mock
+        title, filename: `${title.replace(/\s/g, '_')}.pdf`, mimeType: 'application/pdf', sizeBytes: 1048576
       });
-      // Start processing immediately
       await materialsApi.processMaterial(newMat._id);
       setTitle('');
       await loadMaterials();
@@ -48,68 +44,83 @@ export const ContentUpload = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-semibold">Material Ingestion</h1>
-          <p className="text-neutral-500">Upload documents for AI processing and chunking.</p>
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
+      <div>
+        <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: 'var(--sp-2)' }}>Material Ingestion</h1>
+        <p style={{ fontSize: 'var(--text-base)', color: 'var(--text-secondary)' }}>Upload documents for AI processing and semantic chunking.</p>
       </div>
 
-      <Card>
-        <CardContent className="p-6">
-          <form onSubmit={handleUpload} className="flex gap-4 items-end">
-            <div className="flex-1 space-y-2">
-              <label className="text-sm font-medium">Document Title</label>
-              <input
-                type="text"
-                className="w-full border rounded p-2 focus:ring-primary-500"
+      <Card variant="ai">
+        <CardHeader>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
+            <Sparkles size={18} color="var(--accent-lavender)" />
+            <CardTitle>AI Document Processing</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleUpload} style={{ display: 'flex', gap: 'var(--sp-4)', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 240px' }}>
+              <Input
+                label="Document Title"
                 placeholder="e.g. National Education Policy 2020"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 required
               />
             </div>
-            <div className="flex-1 space-y-2">
-              <label className="text-sm font-medium">Select File (Mock)</label>
-              <input type="file" className="w-full border rounded p-1.5 bg-neutral-50" disabled />
+            <div style={{ flex: '1 1 240px' }}>
+              <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>Select File</label>
+              <input type="file" style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--bg-default)', color: 'var(--text-primary)', fontSize: 'var(--text-sm)', fontFamily: 'var(--font-sans)' }} />
             </div>
-            <Button type="submit" disabled={uploading || !title.trim()}>
-              <Upload size={16} className="mr-2" /> {uploading ? 'Uploading...' : 'Upload & Process'}
-            </Button>
+            <div style={{ flexShrink: 0 }}>
+              <Button type="submit" disabled={uploading || !title.trim()} leftIcon={<Upload size={16} />}>
+                {uploading ? 'Processing...' : 'Upload & Parse'}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4">
-        <h3 className="font-semibold text-lg mt-4">Ingestion Queue</h3>
+      <div>
+        <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--sp-4)' }}>Ingestion Queue</h3>
         {materials.length === 0 ? (
-          <div className="p-8 text-center text-neutral-500 border rounded bg-white">No materials uploaded yet.</div>
+          <div style={{ padding: 'var(--sp-8)', textAlign: 'center', color: 'var(--text-muted)', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--border)' }}>
+            No materials uploaded yet.
+          </div>
         ) : (
-          materials.map(mat => (
-            <div key={mat._id} className="bg-white p-4 rounded shadow-sm border flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-full ${mat.processingStatus === 'READY' ? 'bg-success-100 text-success-600' : 'bg-primary-100 text-primary-600'}`}>
-                  <FileText size={20} />
-                </div>
-                <div>
-                  <h4 className="font-medium">{mat.title}</h4>
-                  <p className="text-xs text-neutral-500">{mat.filename} • {(mat.sizeBytes / 1024 / 1024).toFixed(2)} MB</p>
-                </div>
-              </div>
-              <div>
-                {mat.processingStatus === 'READY' ? (
-                  <span className="flex items-center text-success-600 text-sm font-medium"><CheckCircle size={16} className="mr-1" /> Chunked & Ready</span>
-                ) : mat.processingStatus === 'PROCESSING' ? (
-                  <span className="flex items-center text-primary-600 text-sm font-medium"><Clock size={16} className="mr-1 animate-spin" /> Processing AI Embeddings...</span>
-                ) : (
-                  <span className="text-neutral-500 text-sm">{mat.processingStatus}</span>
-                )}
-              </div>
-            </div>
-          ))
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)' }}>
+            {materials.map(mat => (
+              <Card key={mat._id}>
+                <CardContent style={{ padding: 'var(--sp-4)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-4)' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: 'var(--radius-md)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: mat.processingStatus === 'READY' ? 'var(--success-bg)' : 'var(--primary-50)', color: mat.processingStatus === 'READY' ? 'var(--success-strong)' : 'var(--primary-600)' }}>
+                      <FileText size={20} />
+                    </div>
+                    <div>
+                      <h4 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px 0' }}>{mat.title}</h4>
+                      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', margin: 0 }}>{mat.filename} &bull; {(mat.sizeBytes / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                  </div>
+                  <div>
+                    {mat.processingStatus === 'READY' ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--success-strong)', fontSize: 'var(--text-xs)', fontWeight: 700, padding: '4px 10px', background: 'var(--success-bg)', borderRadius: '100px' }}>
+                        <CheckCircle size={14} /> Chunked & Ready
+                      </span>
+                    ) : mat.processingStatus === 'PROCESSING' ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--primary-600)', fontSize: 'var(--text-xs)', fontWeight: 700, padding: '4px 10px', background: 'var(--primary-50)', borderRadius: '100px' }}>
+                        <Clock size={14} style={{ animation: 'spin 2s linear infinite' }} /> Processing AI Embeddings...
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{mat.processingStatus}</span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
       </div>
+      <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };

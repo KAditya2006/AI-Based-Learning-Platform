@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { aiApi, ChatMessage } from '../../api/ai';
-import { Send, Bot, User, X } from 'lucide-react';
+import { Send, Bot, User, X, Sparkles } from 'lucide-react';
 import { Spinner } from '../../components/ui/Spinner';
+import { Button } from '../../components/ui/Button';
 
 interface LearningAssistantProps {
   onClose: () => void;
+  standalone?: boolean;
 }
 
 export const LearningAssistant: React.FC<LearningAssistantProps> = ({ onClose }) => {
@@ -34,58 +36,83 @@ export const LearningAssistant: React.FC<LearningAssistantProps> = ({ onClose })
   };
 
   return (
-    <div className="flex flex-col h-full bg-white border-l border-neutral-200">
-      <div className="p-4 border-b border-neutral-200 flex justify-between items-center bg-primary-50">
-        <div className="flex items-center gap-2 text-primary-700 font-semibold">
-          <Bot size={20} />
-          <span>AI Learning Assistant</span>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-default)' }}>
+      <div style={{
+        padding: '16px', background: 'var(--ai-glow-subtle)', borderBottom: '1px solid var(--border-primary)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-lavender)', fontWeight: 600 }}>
+          <Sparkles size={18} />
+          <span>AI Assistant</span>
         </div>
-        <button onClick={onClose} className="text-neutral-500 hover:text-neutral-800">
-          <X size={20} />
+        <button
+          onClick={onClose}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', padding: '4px' }}
+        >
+          <X size={18} />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {messages.length === 0 && (
-          <div className="text-center text-neutral-500 my-auto text-sm">
-            <Bot size={32} className="mx-auto mb-2 text-primary-300" />
-            <p>Hi! I'm your AI learning assistant. Ask me to explain a concept or summarize this material.</p>
+          <div style={{ textAlign: 'center', color: 'var(--text-muted)', margin: 'auto 0', padding: '16px' }}>
+            <div style={{
+              width: '48px', height: '48px', borderRadius: '50%', background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: 'var(--accent-lavender)'
+            }}>
+              <Bot size={24} />
+            </div>
+            <p style={{ fontSize: '14px', marginBottom: '8px', color: 'var(--text-primary)', fontWeight: 500 }}>
+              Hi! I'm your AI learning assistant.
+            </p>
+            <p style={{ fontSize: '13px', lineHeight: 1.5 }}>
+              Ask me to explain a concept, summarize material, or generate practice questions based on this course.
+            </p>
           </div>
         )}
         
         {messages.map((m, i) => (
-          <div key={i} className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-              m.role === 'user' ? 'bg-primary-600 text-white' : 
-              m.role === 'assistant' ? 'bg-green-600 text-white' : 'bg-neutral-200 text-neutral-600'
-            }`}>
-              {m.role === 'user' ? <User size={16} /> : m.role === 'assistant' ? <Bot size={16} /> : '!'}
+          <div key={i} style={{ display: 'flex', gap: '12px', flexDirection: m.role === 'user' ? 'row-reverse' : 'row' }}>
+            <div style={{
+              width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: m.role === 'user' ? 'var(--primary-600)' : m.role === 'assistant' ? 'var(--accent-violet)' : 'var(--error-strong)',
+              color: 'white'
+            }}>
+              {m.role === 'user' ? <User size={14} /> : m.role === 'assistant' ? <Bot size={14} /> : '!'}
             </div>
-            <div className={`p-3 rounded-lg max-w-[80%] text-sm ${
-              m.role === 'user' ? 'bg-primary-50 border border-primary-100 text-neutral-800' :
-              m.role === 'assistant' ? 'bg-neutral-50 border border-neutral-200 text-neutral-800' : 'bg-red-50 text-red-800'
-            }`}>
+            <div style={{
+              padding: '12px', borderRadius: '12px', maxWidth: '85%', fontSize: '14px', lineHeight: 1.5,
+              borderTopRightRadius: m.role === 'user' ? '4px' : '12px',
+              borderTopLeftRadius: m.role !== 'user' ? '4px' : '12px',
+              background: m.role === 'user' ? 'var(--primary-50)' : m.role === 'assistant' ? 'var(--bg-elevated)' : 'var(--error-bg)',
+              color: m.role === 'user' ? 'var(--primary-900)' : 'var(--text-primary)',
+              border: `1px solid ${m.role === 'user' ? 'var(--primary-200)' : m.role === 'assistant' ? 'var(--border)' : 'var(--error-border)'}`
+            }}>
               {m.content}
             </div>
           </div>
         ))}
         {loading && (
-          <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center shrink-0">
-              <Bot size={16} />
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--accent-violet)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Bot size={14} />
             </div>
-            <div className="p-3 rounded-lg bg-neutral-50 border border-neutral-200 text-neutral-500 text-sm flex items-center gap-2">
+            <div style={{ padding: '12px', borderRadius: '12px', borderTopLeftRadius: '4px', background: 'var(--bg-elevated)', border: '1px solid var(--border)', fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Spinner /> AI is thinking...
             </div>
           </div>
         )}
       </div>
 
-      <div className="p-4 border-t border-neutral-200">
-        <div className="flex gap-2">
+      <div style={{ padding: '16px', borderTop: '1px solid var(--border)', background: 'var(--bg-default)' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
           <input 
             type="text" 
-            className="flex-1 border border-neutral-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+            style={{
+              flex: 1, padding: '10px 16px', borderRadius: '24px', border: '1px solid var(--border)', background: 'var(--bg-elevated)',
+              fontSize: '14px', color: 'var(--text-primary)', outline: 'none'
+            }}
             placeholder="Ask a question..." 
             value={input}
             onChange={e => setInput(e.target.value)}
@@ -93,11 +120,15 @@ export const LearningAssistant: React.FC<LearningAssistantProps> = ({ onClose })
             disabled={loading}
           />
           <button 
-            className="bg-primary-600 text-white rounded-md p-2 hover:bg-primary-700 disabled:opacity-50"
+            style={{
+              width: '40px', height: '40px', borderRadius: '50%', background: (loading || !input.trim()) ? 'var(--bg-elevated)' : 'var(--primary-600)',
+              color: (loading || !input.trim()) ? 'var(--text-muted)' : 'white', border: (loading || !input.trim()) ? '1px solid var(--border)' : 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: (loading || !input.trim()) ? 'not-allowed' : 'pointer', transition: 'all 0.2s'
+            }}
             onClick={sendMessage}
             disabled={loading || !input.trim()}
           >
-            <Send size={18} />
+            <Send size={16} style={{ marginLeft: '2px' }} />
           </button>
         </div>
       </div>

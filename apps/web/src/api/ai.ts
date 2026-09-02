@@ -24,8 +24,7 @@ export const aiApi = {
 
   chat: (conversationId: string | null, message: string) => {
     return fetchClient<{ conversationId: string; reply: ChatMessage }>('/ai/learner/chat', {
-      method: 'POST',
-      body: JSON.stringify({ conversationId, message })
+      data: { conversationId, message }
     });
   },
 

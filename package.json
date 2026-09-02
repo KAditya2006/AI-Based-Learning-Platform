@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "mospi-skill-platform",
   "version": "1.0.0",
   "description": "AI-enabled Skill Intelligence & Personalized Learning Platform",
@@ -8,12 +8,14 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspaces --if-present",
+    "dev": "concurrently \"npm run dev -w apps/api\" \"npm run dev -w apps/web\"",
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
     "api": "^1.0.0",
+    "concurrently": "^10.0.5",
     "uuid": "^14.0.2"
   }
 }
+

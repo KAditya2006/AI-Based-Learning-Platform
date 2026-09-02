@@ -1,37 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { fetchClient } from '../../api/client';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
+import { Table, TableContainer, TableHead, TableBody, TableRow, TableHeader, TableCell } from '../../components/ui/Table';
+import { Database, RefreshCw, Activity, Calendar, Play } from 'lucide-react';
+import { Spinner } from '../../components/ui/Spinner';
 
 interface IntegrationConfig {
-  _id: string;
-  provider: string;
-  isEnabled: boolean;
-  environment: string;
-  status: string;
-  lastHealthCheckAt?: string;
-  lastSuccessfulSyncAt?: string;
+  _id: string; provider: string; isEnabled: boolean; environment: string; status: string;
+  lastHealthCheckAt?: string; lastSuccessfulSyncAt?: string; activeMode?: string;
 }
 
 interface SyncJob {
-  _id: string;
-  jobType: string;
-  status: string;
-  recordsProcessed: number;
-  errorCount: number;
-  startedAt?: string;
-  completedAt?: string;
+  _id: string; jobType: string; status: string; recordsProcessed: number; recordsCreated: number; recordsUpdated: number;
+  errorCount: number; errorSummary?: string; startedAt?: string; completedAt?: string;
 }
 
 export function IntegrationCenter() {
   const [configs, setConfigs] = useState<IntegrationConfig[]>([]);
   const [jobs, setJobs] = useState<Record<string, SyncJob[]>>({});
   const [loading, setLoading] = useState(true);
+  const [syncingProviders, setSyncingProviders] = useState<Record<string, boolean>>({});
 
   const fetchConfigs = async () => {
     try {
       const res = await fetchClient<IntegrationConfig[]>('/admin/integrations');
       setConfigs(res);
     } catch (err) {
-      console.error('Failed to load integrations', err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -42,7 +39,7 @@ export function IntegrationCenter() {
       const res = await fetchClient<SyncJob[]>(`/admin/integrations/${provider}/sync-history`);
       setJobs(prev => ({ ...prev, [provider]: res }));
     } catch (err) {
-      console.error(`Failed to load jobs for ${provider}`, err);
+      console.error(err);
     }
   };
 
@@ -52,10 +49,7 @@ export function IntegrationCenter() {
 
   const toggleIntegration = async (provider: string, isEnabled: boolean) => {
     try {
-      await fetchClient(`/admin/integrations/${provider}/toggle`, {
-        method: 'PATCH',
-        body: JSON.stringify({ isEnabled })
-      });
+      await fetchClient(`/admin/integrations/${provider}/toggle`, { method: 'PATCH', body: JSON.stringify({ isEnabled }) });
       await fetchConfigs();
     } catch (err) {
       alert('Failed to toggle integration');
@@ -74,172 +68,159 @@ export function IntegrationCenter() {
 
   const triggerSync = async (provider: string) => {
     if (!confirm(`Are you sure you want to trigger a manual sync for ${provider}?`)) return;
+    setSyncingProviders(prev => ({ ...prev, [provider]: true }));
     try {
       await fetchClient(`/admin/integrations/${provider}/sync`, { method: 'POST' });
       alert(`Sync triggered for ${provider}. It will process in the background.`);
       fetchJobs(provider);
     } catch (err) {
       alert('Failed to trigger sync');
+    } finally {
+      setSyncingProviders(prev => ({ ...prev, [provider]: false }));
     }
   };
 
-  if (loading) return <div>Loading Integration Center...</div>;
+  if (loading) return <div style={{ padding: 'var(--sp-12)', textAlign: 'center' }}><Spinner /></div>;
 
   return (
-    <div className="integration-center" style={{ padding: '2rem' }}>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1.5rem' }}>Integration Center</h1>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Manage connections to external learning systems like iGOT and NSSTA.</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-8)' }}>
+      <div>
+        <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: 'var(--sp-2)' }}>Integration Center</h1>
+        <p style={{ fontSize: 'var(--text-base)', color: 'var(--text-secondary)' }}>Manage connections to external learning systems like iGOT and NSSTA.</p>
+      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-6)' }}>
         {configs.map(config => (
-          <div key={config._id} style={{ 
-            background: 'var(--bg-surface)', 
-            border: '1px solid var(--border-color)', 
-            borderRadius: '8px', 
-            padding: '1.5rem'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
-              <div>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  {config.provider}
-                  <span style={{ 
-                    fontSize: '0.75rem', 
-                    padding: '0.25rem 0.5rem', 
-                    borderRadius: '9999px',
-                    fontWeight: 500,
-                    backgroundColor: config.status === 'HEALTHY' ? 'rgba(34, 197, 94, 0.1)' : 
-                                   config.status === 'DISABLED' ? 'var(--bg-secondary)' : 'rgba(239, 68, 68, 0.1)',
-                    color: config.status === 'HEALTHY' ? 'rgb(34, 197, 94)' : 
-                           config.status === 'DISABLED' ? 'var(--text-secondary)' : 'rgb(239, 68, 68)'
-                  }}>
-                    {config.status}
-                  </span>
-                </h2>
-                <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                  Environment: {config.environment}
-                </p>
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button 
-                  onClick={() => toggleIntegration(config.provider, !config.isEnabled)}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    background: config.isEnabled ? 'var(--bg-secondary)' : 'var(--primary-color)',
-                    color: config.isEnabled ? 'var(--text-primary)' : 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: 500
-                  }}
-                >
-                  {config.isEnabled ? 'Disable' : 'Enable'}
-                </button>
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem', padding: '1rem', background: 'var(--bg-secondary)', borderRadius: '6px' }}>
-              <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>Last Health Check</div>
-                <div style={{ color: 'var(--text-primary)' }}>{config.lastHealthCheckAt ? new Date(config.lastHealthCheckAt).toLocaleString() : 'Never'}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>Last Successful Sync</div>
-                <div style={{ color: 'var(--text-primary)' }}>{config.lastSuccessfulSyncAt ? new Date(config.lastSuccessfulSyncAt).toLocaleString() : 'Never'}</div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-              <button 
-                onClick={() => testHealth(config.provider)}
-                disabled={!config.isEnabled}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: 'transparent',
-                  color: 'var(--text-primary)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '6px',
-                  cursor: config.isEnabled ? 'pointer' : 'not-allowed',
-                  opacity: config.isEnabled ? 1 : 0.5
-                }}
-              >
-                Test Connection
-              </button>
-              <button 
-                onClick={() => triggerSync(config.provider)}
-                disabled={!config.isEnabled || config.status === 'UNAVAILABLE'}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: 'transparent',
-                  color: 'var(--text-primary)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '6px',
-                  cursor: config.isEnabled && config.status !== 'UNAVAILABLE' ? 'pointer' : 'not-allowed',
-                  opacity: config.isEnabled && config.status !== 'UNAVAILABLE' ? 1 : 0.5
-                }}
-              >
-                Sync Catalog Now
-              </button>
-              <button 
-                onClick={() => fetchJobs(config.provider)}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: 'transparent',
-                  color: 'var(--text-primary)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}
-              >
-                View Sync History
-              </button>
-            </div>
-
-            {jobs[config.provider] && jobs[config.provider].length > 0 && (
-              <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 500, marginBottom: '1rem' }}>Recent Sync Jobs</h3>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: 'var(--text-secondary)' }}>
-                        <th style={{ padding: '0.5rem 0' }}>Job Type</th>
-                        <th style={{ padding: '0.5rem 0' }}>Status</th>
-                        <th style={{ padding: '0.5rem 0' }}>Processed</th>
-                        <th style={{ padding: '0.5rem 0' }}>Errors</th>
-                        <th style={{ padding: '0.5rem 0' }}>Started</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {jobs[config.provider].map(job => (
-                        <tr key={job._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                          <td style={{ padding: '0.75rem 0' }}>{job.jobType}</td>
-                          <td style={{ padding: '0.75rem 0' }}>
-                            <span style={{ 
-                              padding: '0.125rem 0.375rem', 
-                              borderRadius: '4px', 
-                              fontSize: '0.75rem',
-                              backgroundColor: job.status === 'COMPLETED' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                              color: job.status === 'COMPLETED' ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'
-                            }}>
-                              {job.status}
-                            </span>
-                          </td>
-                          <td style={{ padding: '0.75rem 0' }}>{job.recordsProcessed}</td>
-                          <td style={{ padding: '0.75rem 0' }}>{job.errorCount}</td>
-                          <td style={{ padding: '0.75rem 0', color: 'var(--text-secondary)' }}>
-                            {job.startedAt ? new Date(job.startedAt).toLocaleString() : 'N/A'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          <Card key={config._id} variant="elevated">
+            <CardHeader style={{ padding: 'var(--sp-6)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--sp-4)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-4)' }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-lg)', background: 'var(--primary-100)', color: 'var(--primary-700)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Database size={24} />
+                  </div>
+                  <div>
+                    <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 700, margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      {config.provider}
+                      <Badge variant={config.status === 'HEALTHY' ? 'success' : config.status === 'DISABLED' ? 'neutral' : 'error'}>
+                        {config.status}
+                      </Badge>
+                    </h2>
+                    <div style={{ display: 'flex', gap: 'var(--sp-4)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+                      <span>Mode: <strong style={{ color: 'var(--text-primary)' }}>{config.activeMode || 'UNKNOWN'}</strong></span>
+                      <span>Toggle: <strong style={{ color: config.isEnabled ? 'var(--success-strong)' : 'var(--text-muted)' }}>{config.isEnabled ? 'ENABLED' : 'PAUSED'}</strong></span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <button
+                    onClick={() => toggleIntegration(config.provider, !config.isEnabled)}
+                    role="switch"
+                    aria-checked={config.isEnabled}
+                    style={{
+                      width: '44px', height: '24px', borderRadius: 'var(--radius-full)', border: 'none',
+                      background: config.isEnabled ? 'var(--success-500)' : 'var(--border)',
+                      cursor: 'pointer', position: 'relative', transition: 'background var(--duration-fast)'
+                    }}
+                  >
+                    <span style={{
+                      position: 'absolute', top: '2px', left: config.isEnabled ? '22px' : '2px',
+                      width: '20px', height: '20px', borderRadius: '50%', background: 'white',
+                      transition: 'left var(--duration-fast) var(--ease-spring)', boxShadow: '0 1px 4px rgba(0,0,0,0.3)'
+                    }} />
+                  </button>
                 </div>
               </div>
-            )}
-          </div>
+            </CardHeader>
+            <CardContent style={{ padding: '0 var(--sp-6) var(--sp-6)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--sp-4)', marginBottom: 'var(--sp-6)', padding: 'var(--sp-4)', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                  <Activity size={18} color="var(--text-muted)" style={{ marginTop: '2px' }} />
+                  <div>
+                    <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Last Health Check</div>
+                    <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-primary)', fontWeight: 500 }}>{config.lastHealthCheckAt ? new Date(config.lastHealthCheckAt).toLocaleString() : 'Never'}</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                  <Calendar size={18} color="var(--text-muted)" style={{ marginTop: '2px' }} />
+                  <div>
+                    <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Last Successful Sync</div>
+                    <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-primary)', fontWeight: 500 }}>{config.lastSuccessfulSyncAt ? new Date(config.lastSuccessfulSyncAt).toLocaleString() : 'Never'}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 'var(--sp-3)', flexWrap: 'wrap' }}>
+                <Button 
+                  variant="outline"
+                  onClick={() => testHealth(config.provider)}
+                  disabled={!config.isEnabled || config.activeMode === 'DISABLED'}
+                  leftIcon={<Activity size={16} />}
+                >
+                  Test Connection
+                </Button>
+                <Button 
+                  onClick={() => triggerSync(config.provider)}
+                  disabled={!config.isEnabled || config.status === 'UNAVAILABLE' || config.activeMode === 'DISABLED' || syncingProviders[config.provider]}
+                  isLoading={syncingProviders[config.provider]}
+                  leftIcon={<RefreshCw size={16} />}
+                >
+                  Sync Catalog Now
+                </Button>
+                <Button 
+                  variant="ghost"
+                  onClick={() => fetchJobs(config.provider)}
+                  leftIcon={<Play size={16} />}
+                >
+                  View Sync History
+                </Button>
+              </div>
+
+              {jobs[config.provider] && jobs[config.provider].length > 0 && (
+                <div style={{ marginTop: 'var(--sp-6)' }}>
+                  <h3 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--sp-3)' }}>Recent Sync Jobs</h3>
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableHeader>Job Type</TableHeader>
+                          <TableHeader>Status</TableHeader>
+                          <TableHeader>Processed</TableHeader>
+                          <TableHeader>Created/Updated</TableHeader>
+                          <TableHeader>Errors</TableHeader>
+                          <TableHeader>Started</TableHeader>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {jobs[config.provider].map(job => (
+                          <TableRow key={job._id}>
+                            <TableCell style={{ fontWeight: 500 }}>{job.jobType}</TableCell>
+                            <TableCell>
+                              <Badge variant={job.status === 'COMPLETED' ? 'success' : job.status === 'PARTIAL_SUCCESS' ? 'warning' : 'error'}>
+                                {job.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{job.recordsProcessed}</TableCell>
+                            <TableCell>{job.recordsCreated || 0} / {job.recordsUpdated || 0}</TableCell>
+                            <TableCell>
+                              <span style={{ color: job.errorCount > 0 ? 'var(--error-strong)' : 'inherit', fontWeight: job.errorCount > 0 ? 600 : 400 }}>{job.errorCount}</span>
+                              {job.errorSummary && <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>{job.errorSummary}</div>}
+                            </TableCell>
+                            <TableCell style={{ color: 'var(--text-secondary)' }}>
+                              {job.startedAt ? new Date(job.startedAt).toLocaleString() : 'N/A'}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         ))}
 
         {configs.length === 0 && !loading && (
-          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)', background: 'var(--bg-surface)', borderRadius: '8px' }}>
+          <div style={{ textAlign: 'center', padding: 'var(--sp-12)', color: 'var(--text-muted)', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--border)' }}>
             No integration providers configured.
           </div>
         )}

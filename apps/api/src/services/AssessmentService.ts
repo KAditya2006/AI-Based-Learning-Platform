@@ -5,18 +5,28 @@ import { AuditService } from './AuditService';
 export class AssessmentService {
   // Deterministic Competency Scoring Model
   static evaluateCompetencyLevel(previousLevel: number = 1, percentage: number): number {
+    if (typeof percentage !== 'number' || isNaN(percentage)) {
+      throw new Error('Invalid percentage: must be a number');
+    }
+    if (percentage < 0 || percentage > 100) {
+      throw new Error('Invalid percentage: must be between 0 and 100');
+    }
+
     let newLevel = previousLevel;
     
     // Core logic: 
     // Exceptional score (95+) -> jump up to 2 levels
-    // Strong score (80+) -> jump 1 level
+    // Strong score (80-94) -> jump 1 level
+    // Average score (50-79) -> maintain level
     // Failing score (<50) -> drop 1 level (if possible)
     
     if (percentage >= 95) {
       newLevel = Math.min(5, previousLevel + 2);
     } else if (percentage >= 80) {
       newLevel = Math.min(5, previousLevel + 1);
-    } else if (percentage < 50) {
+    } else if (percentage >= 50) {
+      newLevel = previousLevel;
+    } else {
       newLevel = Math.max(1, previousLevel - 1);
     }
 

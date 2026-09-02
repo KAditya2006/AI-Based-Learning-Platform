@@ -10,11 +10,18 @@ export interface ExternalLearningResource {
   difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 }
 
+export type ProviderMode = 'MOCK' | 'LIVE' | 'DISABLED';
+
 export abstract class IntegrationProvider {
   /**
    * Returns a normalized identifier for the provider (e.g., 'IGOT', 'NSSTA')
    */
   abstract getProviderId(): string;
+
+  /**
+   * Returns the current operational mode of the provider
+   */
+  abstract getMode(): ProviderMode;
 
   /**
    * Health check to determine if the provider API is reachable.

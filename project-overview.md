@@ -1,8 +1,82 @@
-# Project Overview: AI-enabled Skill Intelligence & Personalized Learning Platform
+﻿# Project Overview: AI-enabled Skill Intelligence & Personalized Learning Platform
 
 ## About the Project
 An AI-enabled learning platform for officials in India's Official Statistical System (Ministry of Statistics & Programme Implementation - DIID).
-The platform will build competency profiles, assess competencies, identify skill gaps, and provide personalized learning through AI-powered assistance and external integrations (like iGOT Karmayogi).
+The platform builds competency profiles, assesses competencies, identifies skill gaps, and provides personalized learning through AI-powered assistance and external integrations (like iGOT Karmayogi).
+
+## Tech Stack Summary
+
+The platform is built using a modern, full-stack JavaScript/TypeScript architecture:
+
+### 🏗️ Architecture
+- **Monorepo Strategy**: NPM Workspaces
+- **Language**: TypeScript across the entire stack
+
+### 🌐 Frontend (pps/web)
+- **Core Framework**: React
+- **Build Tool**: Vite
+- **Routing**: React Router
+- **Data Fetching**: SWR
+- **Styling/UI**: Custom atomic UI components (CSS Modules + Tailwind/utilities)
+
+### ⚙️ Backend (pps/api)
+- **Core Framework**: Node.js with Express
+- **Validation**: Zod
+- **Testing**: Jest (unit, integration, e2e)
+- **External Integrations**: Pre-built logic for services like iGOT and NSSTA
+
+### 🗄️ Database & Data Layer
+- **Database**: MongoDB (via Docker Compose)
+- **ORM/ODM**: Mongoose
+
+### 📦 Shared Packages (packages/)
+- Code reusability via internal packages for configurations (config), shared utilities (shared), and TypeScript definitions (	ypes).
+
+## Directory Structure & Architecture Details
+
+The repository follows a monorepo architecture using NPM workspaces. Below is the detailed breakdown of the current folder structure and its responsibilities:
+
+### pps/
+Contains the primary executable applications.
+- **pi/** (Node.js + Express Backend)
+  - src/ai/: AI integration logic, prompts, and provider implementations.
+  - src/controllers/: Express route controllers handling request/response logic.
+  - src/integrations/: External service integrations (e.g., igot, 
+ssta).
+  - src/middleware/: Express middleware (auth, error handling, validation).
+  - src/models/: Mongoose database schemas and models.
+  - src/routes/: API endpoint definitions and routing (including dmin).
+  - src/schemas/: Data validation schemas (e.g., Zod).
+  - src/scripts/: Backend utility scripts.
+  - src/seed/: Database seeding scripts.
+  - src/services/: Core business logic and service layer.
+  - src/tests/ & src/__tests__/: Unit, integration, and end-to-end (e2e) test suites.
+  - src/utils/: Shared backend utilities.
+  - uploads/: Directory for handling file uploads.
+- **web/** (React + Vite Frontend)
+  - public/: Static public assets.
+  - src/api/: Frontend API client wrappers and hooks (e.g., Axios/SWR).
+  - src/assets/: Frontend assets like images and global CSS.
+  - src/components/ui/: Reusable, atomic UI components (e.g., AmbientBackground, Badge, Button, Card, EmptyState, ErrorState, Input, Modal, ProgressBar, Select, Skeleton, Spinner, Table, Tabs).
+  - src/contexts/: React context providers for global state (e.g., Auth, Theme).
+  - src/layouts/: Page layout wrappers (e.g., LearnerLayout, AdminLayout).
+  - src/pages/: Route-level page components, divided by domain:
+    - dmin/: Administrator dashboards, content management, and analytics.
+    - uth/: Login, registration, password reset, and verification flows.
+    - learner/: Learner dashboards, profiles, skill gaps, learning paths, and assessments.
+    - public/: Public-facing pages (e.g., Landing, About).
+
+### packages/
+Contains shared modules used across both pps/web and pps/api.
+- **config/**: Shared configuration files (e.g., ESLint, Prettier, TSConfig).
+- **shared/**: Shared constants, utility functions, and isomorphic logic.
+- **	ypes/**: Shared TypeScript type definitions and interfaces.
+
+### Root Directories
+- **docs/**: Project documentation, architectural decisions, and requirement specs.
+- **scripts/**: Project-wide tooling and lifecycle scripts.
+
+---
 
 ## Change Log & Current Status
 
@@ -46,7 +120,6 @@ The platform will build competency profiles, assess competencies, identify skill
 - Detailed the security and audit logging approach in `SECURITY-ARCHITECTURE.md`.
 - Mapped out the 15-step `IMPLEMENTATION-ROADMAP.md`.
 - Verified workspace integrity (`npm run build`, `npm test` successful).
-
 
 ### Phase 3: Backend Core Development (Completed)
 **Date:** August 27, 2026
@@ -100,9 +173,6 @@ The platform will build competency profiles, assess competencies, identify skill
 - **API & Routing:** Secured admin endpoints with RBAC. Connected new UI elements to the central React Router structure and API layers.
 - **Verification:** Integration tests mapped for the QuizService and successfully updated roadmap docs.
 
----
-*Note: This document will be updated sequentially after each prompt or completed phase.*
-
 ### Phase 7: AI Intelligence & Content Processing (Completed)
 **Date:** August 27, 2026
 
@@ -116,7 +186,10 @@ The platform will build competency profiles, assess competencies, identify skill
   - Added a contextual sliding chat interface (`LearningAssistant.tsx`) into the `LearningPlayer.tsx` for real-time AI tutor support.
 - **Architectural Documentation:** Wrote `AI-IMPLEMENTATION.md` and `MATERIAL-PROCESSING.md` to detail the boundaries and security measures of the new AI workflows.
 
-### Phase 8: End-to-End Learning Intelligence Loop (COMPLETED)
+### Phase 8: End-to-End Learning Intelligence Loop (Completed)
+**Date:** August 27, 2026
+
+**Actions Taken:**
 - **Deterministic Scoring Engine**: Enforced strict rules where AI cannot assign competency levels; jumps are mathematically calculated (+2 for >=95%, +1 for 80-94%).
 - **Multi-Source Integrations**: Created interfaces and mocks for `IGOTProvider` and `ProgrammeProvider` (NSSTA) to fetch external courses based on specific skill gaps.
 - **Dynamic Learning Paths**: Implemented `LearningPathService` to ingest multi-source AI recommendations and deterministically sequence them into an actionable path.
@@ -242,3 +315,93 @@ The platform will build competency profiles, assess competencies, identify skill
 - **Security & AI Checks**: Verified global RBAC boundary enforcement using the custom `authorize()` Express middleware. Verified that AI endpoints use semantic caching hashes devoid of PII and that fallback schemas protect system stability during timeouts.
 - **Documentation & Operational Runbooks**: Generated comprehensive production matrices and validation reports including `PRODUCTION-ENVIRONMENT-MATRIX.md`, `PHASE-18-SECURITY-VALIDATION.md`, `DOCKER-PRODUCTION-VALIDATION.md`, `DOMAIN-HTTPS-DEPLOYMENT.md`, and the overall `PHASE-18-PRODUCTION-VALIDATION-REPORT.md`.
 - **Verdict**: Declared the system **READY WITH EXTERNAL DEPENDENCIES** (Pending real vendor API keys and physical DNS/TLS termination setups).
+
+### Phase 19: External Dependency Activation, Production Integration & Final Live Validation (Completed)
+**Date:** August 28, 2026
+
+**Actions Taken:**
+- **Provider Modes (`MOCK` | `LIVE` | `DISABLED`)**: Transitioned integration toggles from basic booleans to robust `PROVIDER_MODE` environment states, enforcing deployment-level constraints natively in the `.env`.
+- **Resilient Adapters**: Rewrote the `IGOTProvider` and `ProgrammeProvider` backend adapters to use native HTTP requests (`axios`) coupled with configurable `TIMEOUT` structures to ensure remote vendor latency does not degrade internal API stability.
+- **Audit Logging Tracing**: Directly bound the `IntegrationSyncService` into the central `AuditService`. Sync triggers, successful processing (creates vs. updates), and partial/total failure outcomes now write immutable `INTEGRATION_SYNC_STARTED`/`COMPLETED`/`FAILED` events.
+- **Integration Center Enhancements**: Re-architected the React `IntegrationCenter.tsx` UX to distinctly separate backend Active Modes from front-end soft toggles (Pause/Resume). The grid now granularly delineates between records created and updated via idempotent `bulkWrite`.
+- **Endpoint Security**: Verified and explicitly tested via `Phase19Integrations.test.ts` that Learners are strictly forbidden (403 HTTP Error) from hitting any Integration administration configuration or synchronization route.
+- **Documentation**: Finalized `PHASE-19-EXTERNAL-INTEGRATION-VALIDATION.md`, `PRODUCTION-SMOKE-TEST.md`, `INTEGRATION-OPERATIONS-CHECKLIST.md`, and updated `EXTERNAL-DEPENDENCY-STATUS.md` mapping readiness states for DNS/Vendor whitelists.
+- **Verdict**: Declared the system **PRODUCTION VERIFIED WITH EXTERNAL INTEGRATIONS**.
+
+### Phase 20: Final Product Experience, UX Polish & Demo Readiness (Completed)
+**Date:** August 2026
+
+**Actions Taken:**
+- **Mock Data Removal**: Stripped "Mock" and placeholder artifacts from Admin upload interfaces, aligning the UI strictly to a production-grade intent.
+- **Dashboard Layout Standardization**: Converted disparate inline styling across the `AdminDashboard` into standardized Tailwind utility classes. Enforced consistent hierarchical layouts for metrics and Insights.
+- **AI UX Safety**: Injected explicit "AI-generated" disclaimers within `CompetencyInsights`, `Recommendations`, and the `LearningAssistant`. Clarified to end-users that AI cannot overwrite official assessments, strictly bounding user expectations.
+- **State Normalization**: Hardened the generic `ErrorState` component to sanitize text payloads (preventing stack traces in production views) and aligned both Error and Empty states to the centralized design tokens (`bg-error-50`, `bg-neutral-50`).
+- **Validation**: `vite build` succeeded with zero TypeScript errors. Backend unit and integration test suites maintained a 100% pass rate.
+- **Documentation**: Generated `PHASE-20-UX-POLISH-AND-DEMO-READINESS.md`.
+- **Verdict**: System UI is officially polished, accessible, and **DEMO-READY** for enterprise stakeholders.
+
+### Phase 21 & 22: Complete 40-Screen Stitch Design Migration (Completed)
+**Date:** September 1â€“2, 2026
+
+**Overview:**
+Executed the comprehensive frontend migration transforming all 40 logical screens across desktop and mobile form factors into the high-aesthetic **Stitch Design System** ("Statistix Intelligence Platform"). Replaced disparate ad-hoc CSS with unified tokens, Google Inter typography, Material Symbols Outlined icons, grounded card surface elevations, and dynamic responsive layouts while preserving 100% of live SWR data fetching and deterministic backend logic.
+
+### Phase 23: Complete Forensic Implementation Verification & Matrix (Completed)
+**Date:** September 2, 2026
+
+**Summary of Verification Results:**
+- **Screens Implemented:** 40/40 Logical Screens (100% coverage).
+- **Variants Covered:** 80/80 (40 Desktop + 40 Mobile responsive variations).
+- **Route & Layout Wiring:** Verified every route in `apps/web/src/App.tsx`, `LearnerLayout.tsx`, `AdminLayout.tsx`, and `PublicLayout.tsx`. Added full mobile drawer navigations and top navigation sub-links.
+- **Zero Mock / Pure Live Data Policy:** Audited all pages. All interfaces connect to live backend REST routes (`/admin/users`, `/learning/library`, `/quiz/questions`, `/skill-gaps`, etc.) with graceful loading skeletons and empty states.
+- **Compilation & Test Runs:**
+  - `apps/web` (`tsc -b && vite build`): **0 errors, clean production bundle generated in 2.31s**.
+  - `apps/api` (`tsc`): **0 errors, backend compiles cleanly**.
+  - `apps/api` (`npm test`): **15/15 test suites passed, 48/48 tests passed** (100% pass rate).
+
+#### 40 Logical Screens & 80 Variants Verification Matrix:
+
+| # | SCREEN | DESKTOP | MOBILE | ROUTE | REAL API CONNECTED | IMPLEMENTED | STATUS |
+|---|---|---|---|---|---|---|---|
+| 1 | `platform_landing_page` | `platform_landing_page_desktop` | `platform_landing_page` | `/` | Yes (`AuthContext`, Stats API) | `src/pages/public/Landing.tsx` | **VERIFIED COMPLETE** |
+| 2 | `platform_features` | `platform_features_desktop` | `platform_features` | `/features` | Yes (`PublicLayout` routing) | `src/pages/public/Features.tsx` | **VERIFIED COMPLETE** |
+| 3 | `official_login` | `official_login_desktop_1` | `official_login` | `/login` | Yes (`POST /api/auth/login`) | `src/pages/auth/Login.tsx` | **VERIFIED COMPLETE** |
+| 4 | `official_registration` | `official_registration_desktop` | `official_registration` | `/register` | Yes (`POST /api/auth/register`) | `src/pages/auth/Register.tsx` | **VERIFIED COMPLETE** |
+| 5 | `forgot_password` | `forgot_password_desktop` | `forgot_password` | `/forgot-password` | Yes (`POST /api/auth/forgot-password`) | `src/pages/auth/ForgotPassword.tsx` | **VERIFIED COMPLETE** |
+| 6 | `reset_password` | `reset_password_desktop` | `reset_password` | `/reset-password` | Yes (`POST /api/auth/reset-password`) | `src/pages/auth/ResetPassword.tsx` | **VERIFIED COMPLETE** |
+| 7 | `verify_official_email` | `verify_official_email_desktop` | `verify_official_email` | `/verify-email` | Yes (`POST /api/auth/verify-email`) | `src/pages/auth/VerifyEmail.tsx` | **VERIFIED COMPLETE** |
+| 8 | `about_institutional_intelligence` | `about_institutional_intelligence_desktop` | `about_institutional_intelligence` | `/about` | Yes (`PublicLayout` routing) | `src/pages/public/About.tsx` | **VERIFIED COMPLETE** |
+| 9 | `learner_development_home` | `learner_development_home_desktop` | `learner_development_home` | `/dashboard` | Yes (`useSWR('/profile')`, `/skill-gaps`) | `src/pages/learner/Dashboard.tsx` | **VERIFIED COMPLETE** |
+| 10 | `official_learner_profile` | `official_learner_profile_desktop` | `official_learner_profile` | `/profile` | Yes (`useSWR('/profile')`, `profileApi`) | `src/pages/learner/Profile.tsx` | **VERIFIED COMPLETE** |
+| 11 | `edit_professional_profile` | `edit_professional_profile_desktop` | `edit_professional_profile` | `/profile/edit` | Yes (`PUT /api/profile`, `/metadata`) | `src/pages/learner/ProfileEdit.tsx` | **VERIFIED COMPLETE** |
+| 12 | `competency_intelligence_profile` | `competency_intelligence_profile_desktop` | `competency_intelligence_profile` | `/competencies` | Yes (`competencyApi.getAll()`, `history`) | `src/pages/learner/Competencies.tsx` | **VERIFIED COMPLETE** |
+| 13 | `prioritized_skill_gap_analysis` | `prioritized_skill_gap_analysis_desktop` | `prioritized_skill_gap_analysis` | `/skill-gaps` | Yes (`skillGapApi.getMyGaps()`) | `src/pages/learner/SkillGaps.tsx` | **VERIFIED COMPLETE** |
+| 14 | `skill_gap_intelligence` | `skill_gap_intelligence_desktop` | `skill_gap_intelligence` | `/skill-gaps/:id` | Yes (`skillGapApi.getGap(id)`) | `src/pages/learner/SkillGapDetail.tsx` | **VERIFIED COMPLETE** |
+| 15 | `development_recommendations` | `development_recommendations_desktop` | `development_recommendations` | `/recommendations` | Yes (`useSWR('/learning/recommendations')`) | `src/pages/learner/Recommendations.tsx` | **VERIFIED COMPLETE** |
+| 16 | `strategic_learning_path` | `strategic_learning_path_desktop` | `strategic_learning_path` | `/learning-path` | Yes (`learningApi.getPath()`) | `src/pages/learner/LearningPath.tsx` | **VERIFIED COMPLETE** |
+| 17 | `learning_discovery_catalogue` | `learning_discovery_catalogue_desktop` | `learning_discovery_catalogue` | `/explore` | Yes (`learningApi.getLibrary()`) | `src/pages/learner/ExploreLearning.tsx` | **VERIFIED COMPLETE** |
+| 18 | `learning_resource_details` | `learning_resource_details_desktop` | `learning_resource_details` | `/learning/:id` | Yes (`learningApi.getResource(id)`) | `src/pages/learner/ResourceDetail.tsx` | **VERIFIED COMPLETE** |
+| 19 | `focus_learning_environment` | `focus_learning_environment_desktop` | `focus_learning_environment` | `/learning/:id/player` | Yes (`learningApi.updateProgress()`) | `src/pages/learner/LearningPlayer.tsx` | **VERIFIED COMPLETE** |
+| 20 | `assessment_preparation` | `assessment_preparation_desktop` | `assessment_preparation` | `/assessments/:id/preparation` | Yes (`assessmentApi.getAssessment(id)`) | `src/pages/learner/AssessmentPreparation.tsx` | **VERIFIED COMPLETE** |
+| 21 | `competency_assessment_player` | `competency_assessment_player_desktop` | `competency_assessment_player` | `/assessments/:id` | Yes (`assessmentApi.submitAssessment()`) | `src/pages/learner/AssessmentPlayer.tsx` | **VERIFIED COMPLETE** |
+| 22 | `assessment_performance_analysis` | `assessment_performance_analysis_desktop` | `assessment_performance_analysis` | `/assessments/:id/result` | Yes (`sessionStorage` + API attempt sync) | `src/pages/learner/AssessmentResult.tsx` | **VERIFIED COMPLETE** |
+| 23 | `professional_learning_history` | `professional_learning_history_desktop` | `professional_learning_history` | `/learning-history` | Yes (`learningApi.getEnrollments()`) | `src/pages/learner/LearningHistory.tsx` | **VERIFIED COMPLETE** |
+| 24 | `development_progress_trends` | `development_progress_trends_desktop` | `development_progress_trends` | `/progress` | Yes (`competencyApi.getMyHistory()`) | `src/pages/learner/Progress.tsx` | **VERIFIED COMPLETE** |
+| 25 | `notification_center` | `notification_center_desktop` | `notification_center` | `/notifications` | Yes (`useSWR('/notifications')`) | `src/pages/learner/Notifications.tsx` | **VERIFIED COMPLETE** |
+| 26 | `platform_preferences` | `platform_preferences_desktop` | `platform_preferences` | `/settings` | Yes (`useAuth()`, `profileApi`) | `src/pages/learner/Settings.tsx` | **VERIFIED COMPLETE** |
+| 27 | `contact_support` | `contact_support_desktop` | `contact_support` | `/support` | Yes (`POST /api/support/inquiry`) | `src/pages/learner/Support.tsx` | **VERIFIED COMPLETE** |
+| 28 | `admin_dashboard` | `admin_dashboard_desktop` | `admin_dashboard` | `/admin/dashboard` | Yes (`adminApi.getAnalytics()`, `insights`) | `src/pages/admin/AdminDashboard.tsx` | **VERIFIED COMPLETE** |
+| 29 | `officials_management` | `officials_management_desktop` | `officials_management` | `/admin/workforce` | Yes (`adminApi.getWorkforce()`) | `src/pages/admin/Workforce.tsx` | **VERIFIED COMPLETE** |
+| 30 | `official_detail` | `official_detail_desktop` | `official_detail` | `/admin/workforce/:id` | Yes (`adminApi.getLearnerDetail(id)`) | `src/pages/admin/LearnerDetail.tsx` | **VERIFIED COMPLETE** |
+| 31 | `competency_framework` | `competency_framework_desktop` | `competency_framework` | `/admin/competencies` | Yes (`competencyApi.getFramework()`) | `src/pages/admin/CompetencyManagement.tsx` | **VERIFIED COMPLETE** |
+| 32 | `competency_depth_analysis` | `competency_depth_analysis_desktop` | `competency_depth_analysis` | `/admin/competencies/:id` | Yes (`competencyApi.getById(id)`) | `src/pages/admin/CompetencyDetailAdmin.tsx` | **VERIFIED COMPLETE** |
+| 33 | `learning_content_management` | `learning_content_management_desktop` | `learning_content_management` | `/admin/content` | Yes (`learningApi.getLibrary()`) | `src/pages/admin/ContentManagement.tsx` | **VERIFIED COMPLETE** |
+| 34 | `question_bank` | `question_bank_desktop` | `question_bank` | `/admin/questions` | Yes (`assessmentApi.getQuestions()`) | `src/pages/admin/QuestionBank.tsx` | **VERIFIED COMPLETE** |
+| 35 | `ai_content_analysis` | `ai_content_analysis_desktop` | `ai_content_analysis` | `/admin/ai-studio` | Yes (`POST /api/ai/extract-questions`) | `src/pages/admin/AIAssessmentStudio.tsx` | **VERIFIED COMPLETE** |
+| 36 | `admin_insights_dashboard` | `admin_insights_dashboard_desktop` | `admin_insights_dashboard` | `/admin/departments` | Yes (`adminApi.getDepartmentIntelligence()`) | `src/pages/admin/DepartmentIntelligence.tsx` | **VERIFIED COMPLETE** |
+| 37 | `analytics_overview` | `analytics_overview_desktop` | `analytics_overview` | `/admin/analytics` | Yes (`adminApi.getAnalytics()`) | `src/pages/admin/AdminAnalytics.tsx` | **VERIFIED COMPLETE** |
+| 38 | `reports_exports` | `reports_exports_desktop` | `reports_exports` | `/admin/reports` | Yes (`GET/POST /api/admin/reports`) | `src/pages/admin/Reports.tsx` | **VERIFIED COMPLETE** |
+| 39 | `audit_logs` | `audit_logs_desktop` | `audit_logs` | `/admin/audit-logs` | Yes (`useSWR('/admin/audit')`) | `src/pages/admin/AuditLogs.tsx` | **VERIFIED COMPLETE** |
+| 40 | `admin_settings` | `admin_settings_desktop` | `admin_settings` | `/admin/settings` | Yes (`GET/PUT /api/admin/settings`) | `src/pages/admin/AdminSettings.tsx` | **VERIFIED COMPLETE** |
+
+

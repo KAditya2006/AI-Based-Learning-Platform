@@ -1,17 +1,20 @@
 import { fetchClient } from './client';
 
 export interface LearningResource {
-  _id: string;
+  _id?: string;
+  id?: string;
   title: string;
   description: string;
   provider: string;
-  source: string;
-  type: string;
-  durationMinutes: number;
-  difficulty: string;
-  competencies: any[];
+  source?: string;
+  type?: string;
+  durationMinutes?: number;
+  difficulty?: string;
+  competencies?: any[];
+  competency_ids?: any[];
   externalUrl?: string;
-  isActive: boolean;
+  isActive?: boolean;
+  [key: string]: any;
 }
 
 export interface Enrollment {

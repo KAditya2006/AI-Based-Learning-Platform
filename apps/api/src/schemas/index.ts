@@ -25,7 +25,7 @@ export const updateCompetencySchema = z.object({
 // AI Schemas
 export const chatSchema = z.object({
   body: z.object({
-    conversationId: z.string().min(1),
+    conversationId: z.string().nullable().optional(),
     message: z.string().min(1)
   })
 });

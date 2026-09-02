@@ -1,23 +1,72 @@
 import React from 'react';
-import { FileQuestion } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 
 interface EmptyStateProps {
-  title?: string;
-  message?: string;
+  icon?: LucideIcon;
+  title: string;
+  message: string;
   action?: React.ReactNode;
+  compact?: boolean;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({ 
-  title = 'No Data Found', 
-  message = 'There is currently no data available to display here.',
-  action
+export const EmptyState: React.FC<EmptyStateProps> = ({
+  icon: Icon,
+  title,
+  message,
+  action,
+  compact = false,
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center p-12 text-center bg-surface border border-border rounded-lg m-4">
-      <FileQuestion className="w-12 h-12 text-text-muted mb-4 opacity-50" />
-      <h3 className="text-lg font-semibold text-text-primary mb-2">{title}</h3>
-      <p className="text-sm text-text-muted mb-4 max-w-md">{message}</p>
-      {action && <div>{action}</div>}
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      textAlign: 'center',
+      padding: compact ? 'var(--sp-8) var(--sp-4)' : 'var(--sp-16) var(--sp-8)',
+      gap: 'var(--sp-4)',
+    }}>
+      {Icon && (
+        <div style={{
+          width: compact ? '40px' : '56px',
+          height: compact ? '40px' : '56px',
+          borderRadius: 'var(--radius-xl)',
+          background: 'var(--ai-glow-subtle)',
+          border: '1px solid var(--border-primary)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--accent-lavender)',
+          marginBottom: 'var(--sp-2)',
+        }}>
+          <Icon size={compact ? 18 : 24} />
+        </div>
+      )}
+      <div>
+        <h3 style={{
+          fontSize: compact ? 'var(--text-base)' : 'var(--text-lg)',
+          fontWeight: 600,
+          color: 'var(--text-primary)',
+          margin: 0,
+          marginBottom: 'var(--sp-2)',
+        }}>
+          {title}
+        </h3>
+        <p style={{
+          fontSize: 'var(--text-sm)',
+          color: 'var(--text-secondary)',
+          lineHeight: 1.6,
+          maxWidth: '360px',
+          margin: '0 auto',
+        }}>
+          {message}
+        </p>
+      </div>
+      {action && (
+        <div style={{ marginTop: 'var(--sp-2)' }}>
+          {action}
+        </div>
+      )}
     </div>
   );
 };

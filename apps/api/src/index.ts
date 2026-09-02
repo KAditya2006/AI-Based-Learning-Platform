@@ -15,14 +15,15 @@ dotenv.config({ path: '../../.env' });
 
 export const app = express();
 const PORT = process.env.PORT || 4000;
-const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/mospi_skill_platform';
+const MONGO_URI = (process.env.MONGODB_URI || process.env.MONGO_URI) as string;
 
 // Fail-fast production checks
+if (!MONGO_URI && process.env.NODE_ENV !== 'test') {
+  logger.error('CRITICAL: MONGODB_URI is required to start the application.');
+  process.exit(1);
+}
+
 if (process.env.NODE_ENV === 'production') {
-  if (!process.env.MONGODB_URI && !process.env.MONGO_URI) {
-    logger.error('CRITICAL: MONGODB_URI is required in production.');
-    process.exit(1);
-  }
   if (!process.env.JWT_SECRET) {
     logger.error('CRITICAL: JWT_SECRET is required in production.');
     process.exit(1);

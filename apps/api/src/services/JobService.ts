@@ -3,7 +3,6 @@ import { logger } from '../utils/logger';
 
 export class JobService {
   private static activeJobs: Set<Promise<any>> = new Set();
-  private static queue: { jobId: string, task: () => Promise<any> }[] = [];
   private static MAX_CONCURRENT_JOBS = 20;
   /**
    * Enqueues a new background job.
@@ -32,37 +31,44 @@ export class JobService {
     return AIJob.findByIdAndUpdate(jobId, updatePayload, { new: true });
   }
 
-  /**
-   * Safe async executor wrapper with bounded concurrency queue
-   */
-  static async executeAsync(jobId: string, task: () => Promise<any>) {
-    if (this.activeJobs.size >= this.MAX_CONCURRENT_JOBS) {
-      this.queue.push({ jobId, task });
-      logger.info(`Job ${jobId} added to queue. Queue size: ${this.queue.length}`);
-      return;
-    }
-    
-    this._runTask(jobId, task);
-  }
+  static async processNextJob() {
+    if (this.activeJobs.size >= this.MAX_CONCURRENT_JOBS) return;
 
-  private static _runTask(jobId: string, task: () => Promise<any>) {
+    // Find next QUEUED job
+    const job = await AIJob.findOneAndUpdate(
+      { status: 'QUEUED' },
+      { status: 'PROCESSING', startedAt: new Date() },
+      { sort: { createdAt: 1 }, new: true }
+    );
+
+    if (!job) return;
+
     let jobPromise: Promise<any> | null = null;
     const runner = async () => {
       try {
-        await this.updateJobStatus(jobId, 'PROCESSING');
-        const result = await task();
-        await this.updateJobStatus(jobId, 'COMPLETED', { resultReference: result });
+        let result;
+        if (job.type === 'MATERIAL_PROCESSING') {
+          const { MaterialService } = require('./MaterialService');
+          result = await MaterialService.processJob(job);
+        } else if (job.type === 'MCQ_GENERATION') {
+          const { AIAssessmentService } = require('./AIAssessmentService');
+          result = await AIAssessmentService.processJob(job);
+        } else if (job.type === 'CATALOG_SYNC') {
+          const { IntegrationSyncService } = require('./IntegrationSyncService');
+          result = await IntegrationSyncService.processJob(job);
+        } else {
+          throw new Error(`Unknown job type: ${job.type}`);
+        }
+        await this.updateJobStatus(job._id.toString(), 'COMPLETED', { resultReference: result });
       } catch (error: any) {
-        logger.error(`Job ${jobId} failed:`, { error });
-        await this.updateJobStatus(jobId, 'FAILED', { error: error.message });
+        logger.error(`Job ${job._id} failed:`, { error });
+        await this.updateJobStatus(job._id.toString(), 'FAILED', { error: error.message });
       } finally {
         if (jobPromise) {
           JobService.activeJobs.delete(jobPromise);
         }
-        if (JobService.queue.length > 0) {
-          const next = JobService.queue.shift();
-          if (next) JobService._runTask(next.jobId, next.task);
-        }
+        // Fetch next job when done
+        JobService.processNextJob();
       }
     };
     

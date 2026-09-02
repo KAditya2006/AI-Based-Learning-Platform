@@ -1,17 +1,22 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Loader2 } from 'lucide-react';
 import styles from './Spinner.module.css';
 
-export interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface SpinnerProps {
   size?: 'sm' | 'md' | 'lg';
-  variant?: 'primary' | 'inverse';
+  variant?: 'primary' | 'inverse' | 'muted';
+  className?: string;
+  label?: string;
 }
 
-export const Spinner = ({ className, size = 'md', variant = 'primary', ...props }: SpinnerProps) => {
+export const Spinner = ({ size = 'md', variant = 'primary', className, label = 'Loading...' }: SpinnerProps) => {
   return (
-    <div className={clsx(styles.spinner, styles[size], styles[variant], className)} {...props}>
-      <Loader2 className={clsx(styles[size])} />
-    </div>
+    <span
+      className={clsx(styles.spinner, styles[size], styles[variant], className)}
+      role="status"
+      aria-label={label}
+    >
+      <span className={styles.ring} aria-hidden="true" />
+    </span>
   );
 };

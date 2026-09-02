@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../components/ui/Card';
+import { Card, CardHeader, CardContent, CardFooter } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { adminAIApi, GeneratedQuestion } from '../../api/adminAI';
-import { Check, X, BookOpen } from 'lucide-react';
+import { Check, X, BookOpen, BrainCircuit } from 'lucide-react';
 import { Spinner } from '../../components/ui/Spinner';
+import { Badge } from '../../components/ui/Badge';
 
 export const AIQuestionReview = () => {
   const [questions, setQuestions] = useState<GeneratedQuestion[]>([]);
@@ -22,7 +23,7 @@ export const AIQuestionReview = () => {
 
   useEffect(() => {
     loadQueue();
-    const interval = setInterval(loadQueue, 10000); // Poll for new questions
+    const interval = setInterval(loadQueue, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -36,56 +37,70 @@ export const AIQuestionReview = () => {
     }
   };
 
-  if (loading) return <div className="flex h-32 items-center justify-center"><Spinner /></div>;
+  if (loading) return <div style={{ height: '30vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Spinner /></div>;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-6)' }}>
       <div>
-        <h1 className="text-2xl font-semibold">AI Question Review Queue</h1>
-        <p className="text-neutral-500">Human-in-the-loop review for AI-generated assessment items.</p>
+        <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: 'var(--sp-2)' }}>
+          AI Question Review Queue
+        </h1>
+        <p style={{ fontSize: 'var(--text-base)', color: 'var(--text-secondary)' }}>
+          Human-in-the-loop review for AI-generated assessment items.
+        </p>
       </div>
 
       {questions.length === 0 ? (
-        <Card>
-          <CardContent className="p-12 text-center text-neutral-500">
-            <BookOpen size={48} className="mx-auto mb-4 text-neutral-300" />
-            <p>The review queue is empty.</p>
-            <p className="text-sm">Head to the AI Assessment Studio to generate more questions.</p>
-          </CardContent>
-        </Card>
+        <div style={{ padding: 'var(--sp-12)', textAlign: 'center', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--border)' }}>
+          <BookOpen size={48} style={{ margin: '0 auto var(--sp-4)', color: 'var(--text-muted)' }} />
+          <p style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--sp-1)' }}>The review queue is empty.</p>
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Head to the AI Assessment Studio to generate more questions.</p>
+        </div>
       ) : (
-        <div className="space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-6)' }}>
           {questions.map((q, idx) => (
-            <Card key={q._id} className="border-primary-200">
-              <CardHeader className="bg-primary-50 py-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-mono text-sm text-primary-700">Draft #{idx + 1} • {q.difficulty}</span>
-                  <span className="bg-primary-200 text-primary-800 text-xs px-2 py-1 rounded">AWAITING REVIEW</span>
+            <Card key={q._id} variant="ai">
+              <CardHeader style={{ background: 'var(--primary-50)', padding: '12px 20px', borderBottom: '1px solid var(--primary-100)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: 'var(--text-sm)', color: 'var(--primary-800)', fontWeight: 600 }}>Draft #{idx + 1} &bull; {q.difficulty}</span>
+                  <Badge variant="warning">AWAITING REVIEW</Badge>
                 </div>
               </CardHeader>
-              <CardContent className="pt-4">
-                <h3 className="text-lg font-medium mb-4">{q.text}</h3>
-                <div className="space-y-2 mb-4">
-                  {q.options.map(opt => (
-                    <div 
-                      key={opt.id} 
-                      className={`p-3 rounded border ${opt.id === q.correctOptionId ? 'bg-success-50 border-success-200 font-medium' : 'bg-white border-neutral-200'}`}
-                    >
-                      <span className="inline-block w-6 text-neutral-400">{opt.id.toUpperCase()}.</span> {opt.text}
-                      {opt.id === q.correctOptionId && <span className="ml-2 text-success-600 text-sm">(Correct Answer)</span>}
-                    </div>
-                  ))}
+              <CardContent style={{ padding: 'var(--sp-6)' }}>
+                <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--sp-4)', lineHeight: 1.5 }}>{q.text}</h3>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)', marginBottom: 'var(--sp-4)' }}>
+                  {q.options.map(opt => {
+                    const isCorrect = opt.id === q.correctOptionId;
+                    return (
+                      <div key={opt.id} style={{ 
+                        padding: '12px 16px', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: 'var(--sp-3)',
+                        background: isCorrect ? 'var(--success-bg)' : 'var(--bg-default)', 
+                        border: `1px solid ${isCorrect ? 'var(--success-border)' : 'var(--border)'}` 
+                      }}>
+                        <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: isCorrect ? 'var(--success-strong)' : 'var(--text-muted)' }}>
+                          {opt.id.toUpperCase()}.
+                        </span>
+                        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-primary)', fontWeight: isCorrect ? 600 : 400 }}>{opt.text}</span>
+                        {isCorrect && <Badge variant="success" style={{ marginLeft: 'auto' }}>Correct Answer</Badge>}
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="bg-neutral-50 p-3 text-sm rounded border border-neutral-200 text-neutral-600">
-                  <strong>AI Explanation:</strong> {q.explanation}
+
+                <div style={{ padding: 'var(--sp-4)', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontWeight: 700, marginBottom: '6px' }}>
+                    <BrainCircuit size={16} color="var(--accent-lavender)" /> AI Explanation
+                  </div>
+                  {q.explanation}
                 </div>
               </CardContent>
-              <CardFooter className="bg-neutral-50 border-t border-neutral-100 justify-end gap-3 py-3">
-                <Button variant="outline" className="text-error-600 hover:bg-error-50" onClick={() => handleAction(q._id, 'reject')}>
-                  <X size={16} className="mr-2" /> Reject & Discard
+              <CardFooter style={{ background: 'var(--bg-subtle)', borderTop: '1px solid var(--border)', padding: '12px 20px', justifyContent: 'flex-end', gap: 'var(--sp-3)' }}>
+                <Button variant="outline" style={{ color: 'var(--error-strong)', borderColor: 'var(--error-border)' }} onClick={() => handleAction(q._id, 'reject')} leftIcon={<X size={16} />}>
+                  Reject & Discard
                 </Button>
-                <Button className="bg-success-600 hover:bg-success-700 text-white" onClick={() => handleAction(q._id, 'approve')}>
-                  <Check size={16} className="mr-2" /> Approve & Publish
+                <Button style={{ background: 'var(--success-600)' }} onClick={() => handleAction(q._id, 'approve')} leftIcon={<Check size={16} />}>
+                  Approve & Publish
                 </Button>
               </CardFooter>
             </Card>

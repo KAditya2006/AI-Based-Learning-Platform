@@ -1,19 +1,23 @@
 import { fetchClient } from './client';
 
 export interface Question {
-  _id: string;
+  _id?: string;
+  id?: string;
   text: string;
   options: { id: string; text: string }[];
   correctOptionId?: string; // Only returned for Admin
   explanation?: string; // Only returned for Admin or post-submission
-  competency: any;
+  competency?: any;
+  competency_id?: any;
   difficulty: string;
-  source: string;
-  status: string;
+  source?: string;
+  status?: string;
+  [key: string]: any;
 }
 
 export interface Assessment {
-  _id: string;
+  _id?: string;
+  id?: string;
   title: string;
   description: string;
   competency: any;
@@ -22,6 +26,7 @@ export interface Assessment {
   attemptPolicy: string;
   questions: Question[];
   isPublished: boolean;
+  [key: string]: any;
 }
 
 export interface AssessmentAttempt {
@@ -39,7 +44,7 @@ export interface AssessmentAttempt {
 export const assessmentApi = {
   getAssessments: (competencyId?: string) => 
     fetchClient<Assessment[]>(`/quiz/assessments${competencyId ? `?competency=${competencyId}` : ''}`),
-    
+  
   getAssessment: (id: string) => 
     fetchClient<Assessment>(`/quiz/assessments/${id}`),
     

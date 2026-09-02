@@ -19,21 +19,35 @@ describe('Phase 17 - Integration Validation E2E', () => {
   });
 
   afterAll(async () => {
+    const { JobService } = require('../../services/JobService');
+    await JobService.drainActiveJobs(2000);
     await mongoose.disconnect();
     await mongoServer.stop();
   });
 
+  const waitForJob = async (jobId: string, timeoutMs = 5000) => {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      const job = await IntegrationSyncJob.findById(jobId);
+      if (job && (job.status === SyncJobStatus.COMPLETED || job.status === SyncJobStatus.FAILED)) {
+        return job;
+      }
+      await new Promise(r => setTimeout(r, 200));
+    }
+    throw new Error('Job timeout');
+  };
+
   it('1. Should perform a full catalog sync idempotently without duplicating resources', async () => {
     // First sync
     const jobId1 = await IntegrationSyncService.syncCatalog('IGOT', 'test-corr-1');
-    await new Promise(r => setTimeout(r, 1500)); // wait for background job
+    await waitForJob(jobId1);
 
     const firstCount = await LearningResource.countDocuments({ provider: 'IGOT' });
     expect(firstCount).toBeGreaterThan(0);
 
     // Second sync (Idempotency test)
     const jobId2 = await IntegrationSyncService.syncCatalog('IGOT', 'test-corr-2');
-    await new Promise(r => setTimeout(r, 1500)); // wait for background job
+    await waitForJob(jobId2);
     
     const secondCount = await LearningResource.countDocuments({ provider: 'IGOT' });
     
@@ -50,9 +64,8 @@ describe('Phase 17 - Integration Validation E2E', () => {
     // Let's force an error to test the catch block.
 
     const jobId = await IntegrationSyncService.syncCatalog('IGOT', 'test-corr-3');
-    await new Promise(r => setTimeout(r, 1500));
+    const job = await waitForJob(jobId);
 
-    const job = await IntegrationSyncJob.findById(jobId);
     expect(job!.status).toBe(SyncJobStatus.FAILED);
   });
 });

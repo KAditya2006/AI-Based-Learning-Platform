@@ -16,6 +16,7 @@ export interface ILearningResource extends Document {
   durationMinutes: number;
   difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
   competencies: mongoose.Types.ObjectId[];
+  externalId?: string;
   externalUrl?: string;
   isActive: boolean;
   createdAt: Date;
@@ -32,6 +33,7 @@ const learningResourceSchema = new Schema<ILearningResource>(
     durationMinutes: { type: Number, required: true },
     difficulty: { type: String, required: true },
     competencies: [{ type: Schema.Types.ObjectId, ref: 'Competency' }],
+    externalId: { type: String },
     externalUrl: { type: String },
     isActive: { type: Boolean, default: true }
   },

@@ -31,5 +31,11 @@ describe('AssessmentService - Deterministic Scoring', () => {
       expect(AssessmentService.evaluateCompetencyLevel(1, 40)).toBe(1);
       expect(AssessmentService.evaluateCompetencyLevel(1, 0)).toBe(1);
     });
+
+    it('should throw an error for invalid percentage (NaN, <0, >100)', () => {
+      expect(() => AssessmentService.evaluateCompetencyLevel(1, NaN)).toThrow('Invalid percentage: must be a number');
+      expect(() => AssessmentService.evaluateCompetencyLevel(1, -10)).toThrow('Invalid percentage: must be between 0 and 100');
+      expect(() => AssessmentService.evaluateCompetencyLevel(1, 150)).toThrow('Invalid percentage: must be between 0 and 100');
+    });
   });
 });

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IAIJob extends Document {
-  type: 'MATERIAL_PROCESSING' | 'MCQ_GENERATION' | 'QUIZ_GENERATION' | 'RECOMMENDATION_GENERATION' | 'LEARNING_PATH_GENERATION' | 'COMPETENCY_ANALYSIS';
+  type: 'MATERIAL_PROCESSING' | 'MCQ_GENERATION' | 'QUIZ_GENERATION' | 'RECOMMENDATION_GENERATION' | 'LEARNING_PATH_GENERATION' | 'COMPETENCY_ANALYSIS' | 'CATALOG_SYNC';
   status: 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
   requesterId: mongoose.Types.ObjectId;
   metadata: any;
@@ -16,7 +16,7 @@ export interface IAIJob extends Document {
 const AIJobSchema = new Schema({
   type: {
     type: String,
-    enum: ['MATERIAL_PROCESSING', 'MCQ_GENERATION', 'QUIZ_GENERATION', 'RECOMMENDATION_GENERATION', 'LEARNING_PATH_GENERATION', 'COMPETENCY_ANALYSIS'],
+    enum: ['MATERIAL_PROCESSING', 'MCQ_GENERATION', 'QUIZ_GENERATION', 'RECOMMENDATION_GENERATION', 'LEARNING_PATH_GENERATION', 'COMPETENCY_ANALYSIS', 'CATALOG_SYNC'],
     required: true
   },
   status: {

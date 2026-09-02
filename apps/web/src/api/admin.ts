@@ -3,12 +3,16 @@ import type { User } from './auth';
 import type { Competency } from './competencies';
 
 export interface WorkforceMember {
-  _id: string;
-  user: User;
-  firstName: string;
-  lastName: string;
-  department: { name: string };
-  designation: { name: string };
+  _id?: string;
+  id?: string;
+  user?: User;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  role?: string;
+  department?: { name: string } | string;
+  designation?: { name: string } | string;
+  [key: string]: any;
 }
 
 export const adminApi = {

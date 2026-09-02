@@ -1,48 +1,87 @@
-import { IntegrationProvider, ExternalLearningResource } from '../IntegrationProvider';
+import { IntegrationProvider, ExternalLearningResource, ProviderMode } from '../IntegrationProvider';
 import { logger } from '../../utils/logger';
+import axios from 'axios';
 
 export class IGOTProvider extends IntegrationProvider {
-  private isEnabled: boolean = process.env.IGOT_ENABLED === 'true';
+  private mode: ProviderMode = (process.env.IGOT_PROVIDER_MODE?.toUpperCase() as ProviderMode) || 'MOCK';
   private baseUrl: string = process.env.IGOT_BASE_URL || 'https://api.igot.gov.in';
+  private timeout: number = parseInt(process.env.IGOT_TIMEOUT || '5000', 10);
+  private apiKey: string = process.env.IGOT_API_KEY || '';
 
   getProviderId(): string {
     return 'IGOT';
   }
 
+  getMode(): ProviderMode {
+    return this.mode;
+  }
+
   async healthCheck(): Promise<boolean> {
-    if (!this.isEnabled) return true; // Mock healthy if flag is off
+    if (this.mode === 'DISABLED') return false;
+    if (this.mode === 'MOCK') return true;
     
     try {
-      // In production, we'd use axios.get(`${this.baseUrl}/health`)
-      // For now, we simulate a network call that succeeds.
-      await new Promise(r => setTimeout(r, 200));
+      await axios.get(`${this.baseUrl}/health`, {
+        timeout: this.timeout,
+        headers: { 'Authorization': `Bearer ${this.apiKey}` }
+      });
       return true;
-    } catch (error) {
-      logger.error('IGOT health check failed', { error });
+    } catch (error: any) {
+      logger.error('IGOT health check failed', { 
+        error: error.message,
+        code: error.code
+      });
       return false;
     }
   }
 
   async fetchCatalog(): Promise<ExternalLearningResource[]> {
-    if (!this.isEnabled) {
+    if (this.mode === 'DISABLED') {
+      throw new Error('IGOT Provider is disabled.');
+    }
+    
+    if (this.mode === 'MOCK') {
       return this.getMockCatalog();
     }
     
-    // In production:
-    // const response = await axios.get(`${this.baseUrl}/api/v1/catalog`, { headers: ... });
-    // return response.data.map(this.normalizeCourse);
-    
-    logger.warn('Real IGOT catalog fetch is not fully implemented because credentials are not available. Falling back to mock data.');
-    return this.getMockCatalog();
+    try {
+      const response = await axios.get(`${this.baseUrl}/api/v1/catalog`, {
+        timeout: this.timeout,
+        headers: { 'Authorization': `Bearer ${this.apiKey}` }
+      });
+      
+      if (response.data && Array.isArray(response.data)) {
+        return response.data.map((item: any) => ({
+          externalId: item.id || item.externalId,
+          title: item.title,
+          description: item.description || '',
+          durationMinutes: item.duration || 120,
+          provider: 'IGOT',
+          competencyTags: item.tags || [],
+          url: item.url || `${this.baseUrl}/courses/${item.id}`,
+          type: item.type || 'COURSE',
+          difficulty: item.difficulty || 'BEGINNER'
+        }));
+      }
+      return [];
+    } catch (error: any) {
+      logger.error('IGOT catalog fetch failed', { 
+        error: error.message,
+        code: error.code
+      });
+      throw error;
+    }
   }
 
   async getResourceDetails(externalId: string): Promise<ExternalLearningResource | null> {
+    if (this.mode === 'DISABLED') return null;
     const catalog = await this.fetchCatalog();
     return catalog.find(c => c.externalId === externalId) || null;
   }
 
   // Backwards compatibility for AILearnerService (deprecated)
   async searchCatalog(competency: string): Promise<ExternalLearningResource[]> {
+    if (this.mode === 'DISABLED') return [];
     const catalog = await this.fetchCatalog();
     return catalog.filter(c => 
       c.competencyTags.some(tag => tag.toLowerCase().includes(competency.toLowerCase()))

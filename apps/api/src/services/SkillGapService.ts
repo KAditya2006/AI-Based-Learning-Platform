@@ -34,6 +34,11 @@ export class SkillGapService {
       const gapSize = Math.max(0, required - current);
       const gapClass = this.calculateGapLevel(gapSize);
 
+      if (gapSize <= 0) {
+        await SkillGap.findOneAndDelete({ learner: learnerId, competency: compId });
+        continue;
+      }
+
       let evidence = `Role requires Level ${required}. `;
       if (currentData) {
         evidence += `Current Level is ${current} based on '${currentData.source}' assessed on ${currentData.date.toDateString()}.`;

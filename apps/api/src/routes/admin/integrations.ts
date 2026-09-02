@@ -9,8 +9,24 @@ const router = Router();
 // GET /api/admin/integrations - List all integration configs
 router.get('/', async (req, res, next) => {
   try {
-    const configs = await IntegrationConfig.find().sort({ provider: 1 });
-    res.json(configs);
+    const configs = await IntegrationConfig.find().sort({ provider: 1 }).lean();
+    
+    const enrichedConfigs = configs.map(config => {
+      try {
+        const providerImpl = IntegrationSyncService.getProvider(config.provider);
+        return {
+          ...config,
+          activeMode: providerImpl.getMode()
+        };
+      } catch (err) {
+        return {
+          ...config,
+          activeMode: 'UNKNOWN'
+        };
+      }
+    });
+    
+    res.json(enrichedConfigs);
   } catch (err) {
     next(err);
   }
