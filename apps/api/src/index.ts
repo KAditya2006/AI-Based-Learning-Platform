@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+﻿import express, { Request, Response } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
@@ -9,6 +9,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
 import { requestLogger } from './middleware/requestLogger';
 import { JobService } from './services/JobService';
+import path from 'path';
 
 // Load environment variables
 dotenv.config({ path: '../../.env' });
@@ -80,6 +81,17 @@ app.get('/api/ready', (req: Request, res: Response) => {
 // Main API Routes
 app.use('/api', apiRoutes);
 
+// Serve frontend static files in production
+if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../../web/dist');
+  app.use(express.static(frontendPath));
+
+  // Catch-all route to serve the React app for all non-API routes
+  app.get('*', (req: Request, res: Response) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
+
 // Basic error handling middleware
 app.use(errorHandler);
 
@@ -139,3 +151,4 @@ if (process.env.NODE_ENV !== 'test') {
     process.on('SIGTERM', () => shutdown('SIGTERM'));
   });
 }
+
