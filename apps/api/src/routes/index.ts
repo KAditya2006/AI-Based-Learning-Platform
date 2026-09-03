@@ -1,5 +1,6 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import authRoutes from './authRoutes';
+import metadataRoutes from './metadataRoutes';
 import profileRoutes from './profileRoutes';
 import competencyRoutes from './competencyRoutes';
 import assessmentRoutes from './assessmentRoutes';
@@ -15,6 +16,7 @@ import { intelligenceRouter } from './admin/intelligenceRoutes';
 const router = Router();
 
 router.use('/auth', authRoutes);
+router.use('/metadata', metadataRoutes);
 router.use('/profile', profileRoutes);
 router.use('/competencies', competencyRoutes);
 router.use('/assessments', assessmentRoutes);
@@ -28,3 +30,4 @@ router.use('/ai', aiRoutes);
 router.use('/notifications', notificationRoutes);
 
 export default router;
+

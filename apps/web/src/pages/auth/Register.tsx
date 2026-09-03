@@ -1,36 +1,120 @@
-import React, { useState } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { authApi } from '../../api/auth';
-import { AlertCircle, ArrowRight, ChevronDown, HelpCircle, Hourglass, Landmark, LineChart, Shield, ShieldCheck } from 'lucide-react';
+import { AlertCircle, ArrowRight, ArrowLeft, ChevronDown, HelpCircle, Hourglass, Landmark, Check, ShieldCheck, X } from 'lucide-react';
 
+interface IdName { id: string; name: string }
 
 export const Register = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [step, setStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  // Step 1
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [agency, setAgency] = useState('');
-  const [terms, setTerms] = useState(false);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
+
+  // Step 2
+  const [orgs, setOrgs] = useState<IdName[]>([]);
+  const [depts, setDepts] = useState<IdName[]>([]);
+  const [desigs, setDesigs] = useState<IdName[]>([]);
+  const [roles, setRoles] = useState<IdName[]>([]);
+  const [organization, setOrganization] = useState('');
+  const [department, setDepartment] = useState('');
+  const [designation, setDesignation] = useState('');
+  const [functionalRole, setFunctionalRole] = useState('');
+
+  useEffect(() => {
+    authApi.getOrganizations().then(setOrgs).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    setDepartment(''); setDesignation(''); setFunctionalRole('');
+    if (organization) {
+      authApi.getDepartments(organization).then(setDepts).catch(() => {});
+    } else { setDepts([]); }
+  }, [organization]);
+
+  useEffect(() => {
+    setDesignation(''); setFunctionalRole('');
+    if (department) {
+      authApi.getDesignations(department).then(setDesigs).catch(() => {});
+    } else { setDesigs([]); }
+  }, [department]);
+
+  useEffect(() => {
+    setFunctionalRole('');
+    if (designation) {
+      authApi.getFunctionalRoles(designation).then(setRoles).catch(() => {});
+    } else { setRoles([]); }
+  }, [designation]);
+
+  // Step 3
+  const [totalExperience, setTotalExperience] = useState('');
+  const [currentRoleExperience, setCurrentRoleExperience] = useState('');
+  const [previousDesignation, setPreviousDesignation] = useState('');
+  const [previousOrganization, setPreviousOrganization] = useState('');
+  const [majorResponsibilities, setMajorResponsibilities] = useState('');
+
+  // Step 4
+  const [skills, setSkills] = useState<{ skill: string, proficiency: string }[]>([]);
+  const [tempSkill, setTempSkill] = useState('');
+  const [tempProficiency, setTempProficiency] = useState('Intermediate');
+  const addSkill = () => {
+    if (tempSkill && tempProficiency) {
+      if (!skills.find(s => s.skill.toLowerCase() === tempSkill.toLowerCase())) {
+        setSkills([...skills, { skill: tempSkill, proficiency: tempProficiency }]);
+      }
+      setTempSkill('');
+    }
+  };
+  const removeSkill = (index: number) => {
+    setSkills(skills.filter((_, i) => i !== index));
+  };
+
+  // Step 5
+  const [preferredFormats, setPreferredFormats] = useState<string[]>([]);
+  const [preferredLanguage, setPreferredLanguage] = useState('');
+  const [learningGoals, setLearningGoals] = useState<string[]>([]);
+
+  const formatOptions = ['Video', 'Course', 'PDF / Document', 'Interactive Learning', 'Practical Exercise', 'Quiz / Assessment', 'Case Study'];
+  const goalOptions = ['Improve Current Skills', 'Fill Skill Gaps', 'Prepare for New Responsibilities', 'Career Development', 'Mandatory / Compliance Training', 'Digital Transformation', 'Technology Upskilling', 'Leadership Development', 'Domain Knowledge'];
+  const expOptions = ['Less than 1 year', '1–3 years', '3–5 years', '5–10 years', '10–15 years', '15+ years'];
+
+  const toggleArray = (arr: string[], setArr: any, val: string) => {
+    setArr(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!terms) {
-      setError('You must agree to the Terms of Service and Privacy Policy.');
-      return;
+    if (step < 6) {
+      if (step === 1 && password !== confirmPassword) {
+        setError('Passwords do not match');
+        return;
+      }
+      setError(''); setStep(step + 1); return;
     }
-    setError('');
-    setIsLoading(true);
+    
+    setError(''); setIsLoading(true);
     try {
-      const res = await authApi.register({ email, password, firstName, lastName, role: 'LEARNER' });
+      const res = await authApi.register({
+        email, password, firstName, lastName, mobileNumber, employeeId,
+        organization, departmentName: department, designationName: designation, functionalRole,
+        experience: { totalExperience, currentRoleExperience, previousDesignation, previousOrganization, majorResponsibilities },
+        skills, learningPreferences: { preferredFormats, preferredLanguage, learningGoals }
+      });
       login(res.token, res.user);
       navigate('/onboarding/profile');
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Registration failed.');
     } finally {
       setIsLoading(false);
     }
@@ -38,55 +122,35 @@ export const Register = () => {
 
   return (
     <div className="bg-background text-on-surface min-h-screen flex flex-col antialiased">
-      <main className="flex-grow flex items-center justify-center p-container-margin md:p-xl">
-        <div className="w-full max-w-[1200px] flex flex-col md:flex-row bg-surface rounded-xl border border-surface-variant overflow-hidden shadow-[0px_1px_3px_rgba(26,22,20,0.05)]">
-          
-          {/* Left Column: Branding / Trust Signals */}
-          <div className="hidden md:flex md:w-5/12 bg-surface-container-high p-xl flex-col justify-between border-r border-surface-variant relative overflow-hidden">
-            <div className="relative z-10">
-              <div className="flex items-center gap-sm mb-lg text-primary">
-                <Landmark className="font-variation-settings:" />
-                <span className="font-headline-sm text-headline-sm font-bold tracking-tight">Skill Intelligence Platform</span>
-              </div>
-              <div className="mt-xl pt-xl">
-                <h2 className="font-headline-md text-headline-md text-on-surface mb-md">Empowering the Government Workforce</h2>
-                <p className="font-body-lg text-body-lg text-on-surface-variant mb-xl">Secure, data-driven skill mapping and learning pathways tailored for institutional excellence.</p>
-                <div className="space-y-md">
-                  <div className="flex items-start gap-md">
-                    <Shield className="text-primary bg-primary-fixed p-sm rounded-full" />
-                    <div>
-                      <h3 className="font-body-md text-body-md font-bold text-on-surface">Gov-Grade Security</h3>
-                      <p className="font-caption text-caption text-on-surface-variant">End-to-end encryption for institutional data.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-md">
-                    <LineChart className="text-primary bg-primary-fixed p-sm rounded-full" />
-                    <div>
-                      <h3 className="font-body-md text-body-md font-bold text-on-surface">Data-Driven Insights</h3>
-                      <p className="font-caption text-caption text-on-surface-variant">Actionable reports for workforce planning.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="relative z-10 mt-xl">
-              <div 
-                className="absolute inset-0 w-full h-full bg-cover opacity-10 mix-blend-multiply rounded-lg" 
-                style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDNbvMEwBH9EB8zyUguO3DRSPFB2bK4f9SHPrikC1GWWUocxL7LK6iBrgzpIM5o8vxK23lLUNuhK9pX5_A4slsJFXxclNf8F2jzol8D30fnAuds0L7fvy51aVFw4QUnJpNAfEPOsGMSp-q_aYUfW69lWGpuxlIumWTInjxF6dcY_L4DCNv7RNKkG1unYPSx4EZpXzYGkVG6uf-fnxK8mP_1t2B8yEMW-P1siA7YSGz61RJ9zBvz7jBrHA')" }}
-              />
-            </div>
+      <main className="flex-1 flex w-full">
+        <div className="hidden lg:flex w-[45%] bg-surface-container-low border-r border-surface-variant flex-col items-center justify-center p-2xl relative overflow-hidden">
+          <div className="relative z-10 max-w-md text-center">
+            <Landmark className="w-20 h-20 text-primary mx-auto mb-lg" />
+            <h1 className="font-display-md text-display-md mb-md text-on-surface">Build Your Competency Profile</h1>
+            <p className="font-body-lg text-body-lg text-on-surface-variant mb-xl">
+              Join the official learning platform designed to match your specific organizational role and skills with personalized AI recommendations.
+            </p>
           </div>
-          
-          {/* Right Column: Registration Form */}
-          <div className="w-full md:w-7/12 p-lg md:p-xl lg:px-[80px] lg:py-[64px] bg-surface flex flex-col justify-center">
-            <div className="md:hidden flex items-center gap-sm mb-lg text-primary">
-              <Landmark className="font-variation-settings:" />
+        </div>
+
+        <div className="flex-1 flex flex-col justify-center items-center p-md md:p-2xl bg-surface">
+          <div className="w-full max-w-xl bg-surface-container shadow-sm rounded-xl p-xl border border-surface-variant">
+            
+            <div className="flex items-center gap-sm mb-lg">
+              <Landmark className="text-primary" />
               <span className="font-headline-sm text-headline-sm font-bold">Skill Intel</span>
             </div>
             
             <div className="mb-xl">
-              <h1 className="font-display-lg text-display-lg text-on-surface mb-sm">Create an Account</h1>
-              <p className="font-body-md text-body-md text-on-surface-variant">Register with your official credentials to access the platform.</p>
+              <h2 className="font-display-sm text-display-sm text-on-surface mb-sm">Create an Account</h2>
+              <div className="flex items-center justify-between relative mt-md">
+                <div className="absolute left-0 top-1/2 w-full h-[2px] bg-surface-variant -z-10"></div>
+                {[1, 2, 3, 4, 5, 6].map(num => (
+                  <div key={num} className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${step >= num ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant border border-surface-variant'}`}>
+                    {step > num ? <Check className="w-4 h-4" /> : num}
+                  </div>
+                ))}
+              </div>
             </div>
             
             {error && (
@@ -97,126 +161,242 @@ export const Register = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-lg">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                <div>
-                  <label htmlFor="firstName" className="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase tracking-wider">First Name</label>
-                  <input 
-                    id="firstName" 
-                    type="text" 
-                    required 
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full bg-surface-container-lowest border border-surface-variant rounded focus:border-primary focus:ring-2 focus:ring-tertiary-fixed text-on-surface font-body-md text-body-md h-[48px] px-md outline-none transition-all"
-                  />
+              
+              {/* STEP 1 */}
+              {step === 1 && (
+                <div className="space-y-md animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <h3 className="font-title-lg text-title-lg mb-md">Step 1: Basic Information</h3>
+                  <div className="grid grid-cols-2 gap-md">
+                    <div>
+                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">First Name</label>
+                      <input required value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                    </div>
+                    <div>
+                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Last Name</label>
+                      <input required value={lastName} onChange={e => setLastName(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Official Email</label>
+                    <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-md">
+                    <div>
+                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Mobile Number</label>
+                      <input required value={mobileNumber} onChange={e => setMobileNumber(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                    </div>
+                    <div>
+                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Employee ID</label>
+                      <input required value={employeeId} onChange={e => setEmployeeId(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-md">
+                    <div>
+                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Password</label>
+                      <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                    </div>
+                    <div>
+                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Confirm Password</label>
+                      <input type="password" required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor="lastName" className="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase tracking-wider">Last Name</label>
-                  <input 
-                    id="lastName" 
-                    type="text" 
-                    required 
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="w-full bg-surface-container-lowest border border-surface-variant rounded focus:border-primary focus:ring-2 focus:ring-tertiary-fixed text-on-surface font-body-md text-body-md h-[48px] px-md outline-none transition-all"
-                  />
+              )}
+
+              {/* STEP 2 */}
+              {step === 2 && (
+                <div className="space-y-md animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <h3 className="font-title-lg text-title-lg mb-md">Step 2: Professional Information</h3>
+                  <div>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Organization</label>
+                    <select required value={organization} onChange={e => setOrganization(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary">
+                      <option value="" disabled>Select Organization</option>
+                      {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Department / Division</label>
+                    <select required disabled={!organization} value={department} onChange={e => setDepartment(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary disabled:opacity-50">
+                      <option value="" disabled>Select Department</option>
+                      {depts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Designation (Official Post)</label>
+                    <select required disabled={!department} value={designation} onChange={e => setDesignation(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary disabled:opacity-50">
+                      <option value="" disabled>Select Designation</option>
+                      {desigs.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Functional Role (Actual Work Area)</label>
+                    <select required disabled={!designation} value={functionalRole} onChange={e => setFunctionalRole(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary disabled:opacity-50">
+                      <option value="" disabled>Select Functional Role</option>
+                      {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                    </select>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <label htmlFor="email" className="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase tracking-wider">Official Gov Email</label>
-                <input 
-                  id="email" 
-                  type="email" 
-                  placeholder="name@agency.gov" 
-                  required 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-surface-container-lowest border border-surface-variant rounded focus:border-primary focus:ring-2 focus:ring-tertiary-fixed text-on-surface font-body-md text-body-md h-[48px] px-md outline-none transition-all"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="agency" className="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase tracking-wider">Department / Agency</label>
-                <div className="relative">
-                  <select 
-                    id="agency" 
-                    required 
-                    value={agency}
-                    onChange={(e) => setAgency(e.target.value)}
-                    className="w-full bg-surface-container-lowest border border-surface-variant rounded focus:border-primary focus:ring-2 focus:ring-tertiary-fixed text-on-surface font-body-md text-body-md h-[48px] px-md appearance-none outline-none transition-all"
-                  >
-                    <option value="" disabled>Select your department...</option>
-                    <option value="dept1">Department of Defense</option>
-                    <option value="dept2">Department of Energy</option>
-                    <option value="dept3">Department of Education</option>
-                    <option value="dept4">Other Federal Agency</option>
-                  </select>
-                  <ChevronDown className="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" />
+              {/* STEP 3 */}
+              {step === 3 && (
+                <div className="space-y-md animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <h3 className="font-title-lg text-title-lg mb-md">Step 3: Experience</h3>
+                  <div className="grid grid-cols-2 gap-md">
+                    <div>
+                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Total Experience</label>
+                      <select required value={totalExperience} onChange={e => setTotalExperience(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary">
+                        <option value="" disabled>Select Range</option>
+                        {expOptions.map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Current Role Experience</label>
+                      <select required value={currentRoleExperience} onChange={e => setCurrentRoleExperience(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary">
+                        <option value="" disabled>Select Range</option>
+                        {expOptions.map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Previous Designation (Optional)</label>
+                    <input value={previousDesignation} onChange={e => setPreviousDesignation(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                  </div>
+                  <div>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Previous Organization (Optional)</label>
+                    <input value={previousOrganization} onChange={e => setPreviousOrganization(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                  </div>
+                  <div>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Major Responsibilities</label>
+                    <textarea required value={majorResponsibilities} onChange={e => setMajorResponsibilities(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-24 p-3 outline-none focus:border-primary" />
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <label htmlFor="password" className="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase tracking-wider">Password</label>
-                <input 
-                  id="password" 
-                  type="password" 
-                  required 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-surface-container-lowest border border-surface-variant rounded focus:border-primary focus:ring-2 focus:ring-tertiary-fixed text-on-surface font-body-md text-body-md h-[48px] px-md outline-none transition-all"
-                />
-                <p className="mt-xs font-caption text-caption text-on-surface-variant">Must be at least 8 characters.</p>
-              </div>
-
-              <div className="flex items-start gap-sm pt-sm">
-                <div className="flex items-center h-5">
-                  <input 
-                    id="terms" 
-                    type="checkbox" 
-                    required 
-                    checked={terms}
-                    onChange={(e) => setTerms(e.target.checked)}
-                    className="w-4 h-4 text-primary bg-surface-container-lowest border-surface-variant rounded focus:ring-primary focus:ring-2 cursor-pointer"
-                  />
+              {/* STEP 4 */}
+              {step === 4 && (
+                <div className="space-y-md animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <h3 className="font-title-lg text-title-lg mb-md">Step 4: Skills & Proficiency</h3>
+                  <div className="flex gap-sm items-end">
+                    <div className="flex-1">
+                      <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wider">Skill (e.g. SQL, Statistical Analysis)</label>
+                      <input value={tempSkill} onChange={e => setTempSkill(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-10 px-3 outline-none focus:border-primary" />
+                    </div>
+                    <div className="w-[150px]">
+                      <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wider">Proficiency</label>
+                      <select value={tempProficiency} onChange={e => setTempProficiency(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-10 px-3 outline-none focus:border-primary">
+                        {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map(p => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                    </div>
+                    <button type="button" onClick={addSkill} className="h-10 px-4 bg-primary text-on-primary rounded text-sm font-bold">Add</button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {skills.map((s, idx) => (
+                      <div key={idx} className="flex items-center gap-2 bg-secondary-container text-on-secondary-container px-3 py-1.5 rounded-full text-sm">
+                        <span className="font-medium">{s.skill}</span>
+                        <span className="text-xs opacity-80 border-l border-on-secondary-container/20 pl-2">{s.proficiency}</span>
+                        <button type="button" onClick={() => removeSkill(idx)} className="ml-1 hover:text-error"><X className="w-3 h-3" /></button>
+                      </div>
+                    ))}
+                    {skills.length === 0 && <p className="text-sm text-on-surface-variant italic">Add at least one skill to continue.</p>}
+                  </div>
                 </div>
-                <div className="ml-2 text-sm">
-                  <label htmlFor="terms" className="font-body-md text-body-md text-on-surface-variant cursor-pointer">
-                    I agree to the <a href="#" className="text-primary hover:underline">Terms of Service</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a> governing institutional data usage.
-                  </label>
-                </div>
-              </div>
+              )}
 
-              <div className="pt-md">
+              {/* STEP 5 */}
+              {step === 5 && (
+                <div className="space-y-md animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <h3 className="font-title-lg text-title-lg mb-md">Step 5: Learning Preferences</h3>
+                  
+                  <div>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-2">Preferred Learning Formats (Select multiple)</label>
+                    <div className="flex flex-wrap gap-2">
+                      {formatOptions.map(fmt => (
+                        <button key={fmt} type="button" onClick={() => toggleArray(preferredFormats, setPreferredFormats, fmt)} 
+                          className={`px-3 py-1.5 rounded text-sm font-medium border transition-colors ${preferredFormats.includes(fmt) ? 'bg-primary text-on-primary border-primary' : 'bg-transparent border-surface-variant text-on-surface hover:bg-surface-container-high'}`}>
+                          {fmt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Preferred Language</label>
+                    <select required value={preferredLanguage} onChange={e => setPreferredLanguage(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary">
+                      <option value="" disabled>Select Language</option>
+                      <option value="English">English</option>
+                      <option value="Hindi">Hindi</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-2">Learning Goals (Select multiple)</label>
+                    <div className="flex flex-wrap gap-2">
+                      {goalOptions.map(goal => (
+                        <button key={goal} type="button" onClick={() => toggleArray(learningGoals, setLearningGoals, goal)} 
+                          className={`px-3 py-1.5 rounded text-sm font-medium border transition-colors ${learningGoals.includes(goal) ? 'bg-primary text-on-primary border-primary' : 'bg-transparent border-surface-variant text-on-surface hover:bg-surface-container-high'}`}>
+                          {goal}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 6 */}
+              {step === 6 && (
+                <div className="space-y-md animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <h3 className="font-title-lg text-title-lg mb-md">Step 6: Review & Submit</h3>
+                  <div className="bg-surface-container p-4 rounded border border-surface-variant space-y-4">
+                    <div>
+                      <h4 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Identity</h4>
+                      <p>{firstName} {lastName} ({email}) - {employeeId}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Role</h4>
+                      <p>{orgs.find(o=>o.id===organization)?.name} <br/> {depts.find(d=>d.id===department)?.name} <br/> {desigs.find(d=>d.id===designation)?.name} - {roles.find(r=>r.id===functionalRole)?.name}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Skills</h4>
+                      <p>{skills.map(s => `${s.skill} (${s.proficiency})`).join(', ')}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-sm pt-sm">
+                    <input id="terms" type="checkbox" required className="mt-1 w-4 h-4" />
+                    <label htmlFor="terms" className="text-sm text-on-surface-variant cursor-pointer">
+                      I confirm this information is correct and agree to the Terms of Service.
+                    </label>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-4 pt-md">
+                {step > 1 && (
+                  <button type="button" onClick={() => setStep(step - 1)} className="px-4 py-2 border border-surface-variant rounded font-bold text-on-surface hover:bg-surface-container-high">
+                    <ArrowLeft className="w-5 h-5 inline mr-1" /> Back
+                  </button>
+                )}
                 <button 
                   type="submit" 
-                  disabled={isLoading}
-                  className="w-full bg-primary text-on-primary font-headline-sm text-headline-sm rounded h-[48px] hover:bg-surface-tint active:bg-primary-container transition-colors shadow-sm flex items-center justify-center gap-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={isLoading || (step === 4 && skills.length === 0)}
+                  className="flex-1 bg-primary text-on-primary font-bold rounded h-12 hover:bg-primary/90 active:bg-primary transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
                 >
-                  {isLoading ? <Hourglass className="text-sm animate-spin" /> : <ArrowRight className="text-sm" />}
-                  {isLoading ? 'Registering...' : 'Register Account'}
+                  {isLoading ? <Hourglass className="animate-spin" /> : (step === 6 ? <Check /> : <ArrowRight />)}
+                  {isLoading ? 'Processing...' : (step === 6 ? 'Submit Registration' : 'Continue')}
                 </button>
               </div>
             </form>
 
             <div className="mt-xl pt-lg border-t border-surface-variant text-center">
               <p className="font-body-md text-body-md text-on-surface-variant">
-                Already have an account? 
-                <Link to="/login" className="text-primary font-bold hover:underline ml-xs">Sign In</Link>
+                Already have an account? <Link to="/login" className="text-primary font-bold hover:underline">Sign In</Link>
               </p>
-              <div className="mt-md flex justify-center items-center gap-md">
-                <a href="#" className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors flex items-center gap-xs">
-                  <HelpCircle className="text-[16px]" /> Support
-                </a>
-                <span className="text-surface-variant">|</span>
-                <a href="#" className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors flex items-center gap-xs">
-                  <ShieldCheck className="text-[16px]" /> Security Info
-                </a>
-              </div>
             </div>
-            
           </div>
         </div>
       </main>
     </div>
   );
 };
+

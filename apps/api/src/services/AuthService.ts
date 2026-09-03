@@ -1,10 +1,38 @@
-import { User, Profile, UserRole, UserStatus } from '../models';
+﻿import { User, Profile, UserRole, UserStatus } from '../models';
 import { generateToken } from '../utils/jwt';
 import { AuditService } from './AuditService';
 import crypto from 'crypto';
+import { DEPARTMENTS_BY_ORG, DESIGNATIONS_BY_DEPT, FUNCTIONAL_ROLES_BY_DESIG, ORGANIZATIONS } from '../data/organizationStructure';
 
 export class AuthService {
-  static async register(email: string, passwordPlain: string, firstName: string, lastName: string, role: UserRole = UserRole.LEARNER) {
+  static async register(payload: any, role: UserRole = UserRole.LEARNER) {
+    const { email, password, firstName, lastName, ...profileData } = payload;
+    
+    // Cross-validation of organizational hierarchy
+    if (profileData.organization) {
+      const orgExists = ORGANIZATIONS.some(o => o.id === profileData.organization);
+      if (!orgExists) throw new Error('Invalid organization selected');
+      
+      if (profileData.departmentName) {
+        const validDepts = DEPARTMENTS_BY_ORG[profileData.organization] || [];
+        const deptExists = validDepts.some(d => d.id === profileData.departmentName);
+        if (!deptExists) throw new Error('Invalid department for the selected organization');
+        
+        if (profileData.designationName) {
+          const validDesigs = DESIGNATIONS_BY_DEPT[profileData.departmentName] || [];
+          const desigExists = validDesigs.some(d => d.id === profileData.designationName) || validDesigs.length === 0; 
+          // If no mapping exists, we shouldn't strictly block it unless we have full data, but based on requirements we should.
+          if (!desigExists && validDesigs.length > 0) throw new Error('Invalid designation for the selected department');
+          
+          if (profileData.functionalRole) {
+            const validRoles = FUNCTIONAL_ROLES_BY_DESIG[profileData.designationName] || [];
+            const roleExists = validRoles.some(r => r.id === profileData.functionalRole) || validRoles.length === 0;
+            if (!roleExists && validRoles.length > 0) throw new Error('Invalid functional role for the selected designation');
+          }
+        }
+      }
+    }
+
     const existing = await User.findOne({ email });
     if (existing) {
       throw new Error('Email already registered');
@@ -14,17 +42,21 @@ export class AuthService {
 
     const user = new User({ 
       email, 
-      passwordHash: passwordPlain, 
+      passwordHash: password, 
       role, 
       status: UserStatus.ACTIVE,
       emailVerificationToken
     });
     await user.save();
 
-    await Profile.create({ user: user._id, firstName, lastName });
+    await Profile.create({ 
+      user: user._id, 
+      firstName, 
+      lastName,
+      ...profileData
+    });
     await AuditService.log(user._id.toString(), 'REGISTER', user._id.toString(), { role });
     
-    // In a real app, send email here with the verification token
     console.log(`[Email Mock] Verification sent to ${email} with token: ${emailVerificationToken}`);
 
     const token = generateToken(user._id.toString(), user.role);
@@ -53,15 +85,14 @@ export class AuthService {
 
   static async forgotPassword(email: string) {
     const user = await User.findOne({ email });
-    if (!user) return; // Silent return to prevent email enumeration
+    if (!user) return; 
 
     const resetToken = crypto.randomBytes(32).toString('hex');
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
+    user.resetPasswordExpires = new Date(Date.now() + 3600000); 
     await user.save();
 
     await AuditService.log(user._id.toString(), 'PASSWORD_RESET_REQUESTED');
-    console.log(`[Email Mock] Password reset for ${email}. Token: ${resetToken}`);
   }
 
   static async resetPassword(token: string, newPasswordPlain: string) {

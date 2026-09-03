@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+﻿import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
 import bcrypt from 'bcryptjs';
@@ -52,21 +52,21 @@ import { MockAIProvider } from '../ai/MockAIProvider';
 
 async function runE2EValidation() {
   console.log('================================================================');
-  console.log('🚀 FULL-STACK END-TO-END APPLICATION VALIDATION & AUDIT STARTING');
+  console.log('ðŸš€ FULL-STACK END-TO-END APPLICATION VALIDATION & AUDIT STARTING');
   console.log('================================================================');
 
   const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://instantseva29_db_user:phcCo6HJ35W6xdFw@stackphantom.tej52rv.mongodb.net/mospi_skill_platform_atlas?retryWrites=true&w=majority&appName=StackPhantom';
-  console.log('📡 Connecting to MongoDB...');
+  console.log('ðŸ“¡ Connecting to MongoDB...');
   
   try {
     await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 6000 });
-    console.log('✅ MongoDB connected successfully to database cluster.');
+    console.log('âœ… MongoDB connected successfully to database cluster.');
   } catch (err: any) {
-    console.warn('⚠️ Atlas connection timed out/failed. Starting MongoMemoryServer fallback for local execution...', err.message);
+    console.warn('âš ï¸ Atlas connection timed out/failed. Starting MongoMemoryServer fallback for local execution...', err.message);
     const { MongoMemoryServer } = require('mongodb-memory-server');
     const mongoServer = await MongoMemoryServer.create();
     await mongoose.connect(mongoServer.getUri());
-    console.log('✅ MongoMemoryServer connected successfully.');
+    console.log('âœ… MongoMemoryServer connected successfully.');
   }
 
   const results: { test: string; status: 'PASS' | 'FAIL'; details?: string }[] = [];
@@ -74,9 +74,9 @@ async function runE2EValidation() {
   const recordResult = (test: string, passed: boolean, details?: string) => {
     results.push({ test, status: passed ? 'PASS' : 'FAIL', details });
     if (passed) {
-      console.log(`  ✅ [PASS] ${test}`);
+      console.log(`  âœ… [PASS] ${test}`);
     } else {
-      console.error(`  ❌ [FAIL] ${test} - ${details || 'Assertion failed'}`);
+      console.error(`  âŒ [FAIL] ${test} - ${details || 'Assertion failed'}`);
     }
   };
 
@@ -216,13 +216,7 @@ async function runE2EValidation() {
     const learnerPassword = 'SecurePassword2026!';
     
     // Register
-    const regResult = await AuthService.register(
-      learnerEmail,
-      learnerPassword,
-      'Rohan',
-      'Sharma',
-      UserRole.LEARNER
-    );
+    const regResult = await AuthService.register({ email: learnerEmail, password: learnerPassword, firstName: 'Rohan', lastName: 'Sharma' }, UserRole.LEARNER);
     recordResult('Learner registration', !!regResult.user && regResult.user.role === UserRole.LEARNER);
 
     const userDoc = await User.findById(regResult.user._id);
@@ -449,7 +443,7 @@ async function runE2EValidation() {
     await JobService.drainActiveJobs(3000);
     await mongoose.connection.close();
     console.log('\n================================================================');
-    console.log('📊 FINAL VALIDATION SUMMARY:');
+    console.log('ðŸ“Š FINAL VALIDATION SUMMARY:');
     console.log(`Total Checks Executed: ${results.length}`);
     console.log(`Passed: ${results.filter(r => r.status === 'PASS').length}`);
     console.log(`Failed: ${results.filter(r => r.status === 'FAIL').length}`);
@@ -464,3 +458,7 @@ async function runE2EValidation() {
 }
 
 runE2EValidation();
+
+
+
+

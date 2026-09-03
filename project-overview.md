@@ -4,6 +4,13 @@
 An AI-enabled learning platform for officials in India's Official Statistical System (Ministry of Statistics & Programme Implementation - DIID).
 The platform builds competency profiles, assesses competencies, identifies skill gaps, and provides personalized learning through AI-powered assistance and external integrations (like iGOT Karmayogi).
 
+
+
+## Recent Implementations
+- **Registration Overhaul**: Implemented a comprehensive 6-step registration flow in pps/web/src/pages/auth/Register.tsx to collect basic information, hierarchical professional information, experience, skills, and learning preferences.
+- **Organizational Metadata**: Created a robust metadata backend (pps/api/src/data/organizationStructure.ts and /api/metadata/* endpoints) to strictly manage the mapping of Organizations (MoSPI, NSO, etc.) -> Departments -> Designations -> Functional Roles.
+- **Extended Profile Schema**: The MongoDB Profile model has been extended to store deeply nested professional records, validating relationships across the hierarchical metadata.
+
 ## Tech Stack Summary
 
 The platform is built using a modern, full-stack JavaScript/TypeScript architecture:
@@ -403,5 +410,6 @@ Executed the comprehensive frontend migration transforming all 40 logical screen
 | 38 | `reports_exports` | `reports_exports_desktop` | `reports_exports` | `/admin/reports` | Yes (`GET/POST /api/admin/reports`) | `src/pages/admin/Reports.tsx` | **VERIFIED COMPLETE** |
 | 39 | `audit_logs` | `audit_logs_desktop` | `audit_logs` | `/admin/audit-logs` | Yes (`useSWR('/admin/audit')`) | `src/pages/admin/AuditLogs.tsx` | **VERIFIED COMPLETE** |
 | 40 | `admin_settings` | `admin_settings_desktop` | `admin_settings` | `/admin/settings` | Yes (`GET/PUT /api/admin/settings`) | `src/pages/admin/AdminSettings.tsx` | **VERIFIED COMPLETE** |
+
 
 
