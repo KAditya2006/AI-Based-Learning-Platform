@@ -1,4 +1,4 @@
-import { fetchClient } from './client';
+﻿import { fetchClient } from './client';
 
 export interface Profile {
   _id: string;
@@ -6,10 +6,27 @@ export interface Profile {
   lastName: string;
   department?: { _id: string; name: string };
   designation?: { _id: string; name: string };
-  currentAssignment?: string;
-  education?: string;
-  workExperience?: string;
-  learningGoals?: string[];
+  mobileNumber?: string;
+  organization?: string;
+  departmentName?: string;
+  designationName?: string;
+  functionalRole?: string;
+  experience?: {
+    totalExperience?: string;
+    currentRoleExperience?: string;
+    previousDesignation?: string;
+    previousOrganization?: string;
+    majorResponsibilities?: string;
+  };
+  skills?: {
+    skill: string;
+    proficiency: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
+  }[];
+  learningPreferences?: {
+    preferredFormats?: string[];
+    preferredLanguage?: string;
+    learningGoals?: string[];
+  };
   onboardingStatus?: string;
 }
 
@@ -19,6 +36,8 @@ export const profileApi = {
   updateProfile: (data: Partial<Profile>) => 
     fetchClient<Profile>('/profile', {
       method: 'PATCH',
-      body: JSON.stringify(data)
+      data: data
     })
 };
+
+

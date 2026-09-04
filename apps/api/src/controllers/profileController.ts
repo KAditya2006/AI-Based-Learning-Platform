@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+﻿import { Request, Response, NextFunction } from 'express';
 import { Profile } from '../models';
 
 export const getProfile = async (req: Request, res: Response, next: NextFunction) => {
@@ -20,7 +20,9 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
   try {
     const { 
       firstName, lastName, department, designation, currentAssignment, 
-      education, workExperience, trainingHistory, learningGoals, onboardingStatus 
+      education, workExperience, trainingHistory, learningGoals, onboardingStatus,
+      mobileNumber, organization, departmentName, designationName, functionalRole,
+      experience, skills, learningPreferences
     } = req.body;
 
     const updates: any = {};
@@ -34,6 +36,16 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
     if (trainingHistory !== undefined) updates.trainingHistory = trainingHistory;
     if (learningGoals !== undefined) updates.learningGoals = learningGoals;
     if (onboardingStatus !== undefined) updates.onboardingStatus = onboardingStatus;
+    
+    // New fields
+    if (mobileNumber !== undefined) updates.mobileNumber = mobileNumber;
+    if (organization !== undefined) updates.organization = organization;
+    if (departmentName !== undefined) updates.departmentName = departmentName;
+    if (designationName !== undefined) updates.designationName = designationName;
+    if (functionalRole !== undefined) updates.functionalRole = functionalRole;
+    if (experience !== undefined) updates.experience = experience;
+    if (skills !== undefined) updates.skills = skills;
+    if (learningPreferences !== undefined) updates.learningPreferences = learningPreferences;
 
     const profile = await Profile.findOneAndUpdate(
       { user: req.user?.userId }, 
@@ -65,3 +77,4 @@ export const getMetadata = async (req: Request, res: Response, next: NextFunctio
     next(error);
   }
 };
+

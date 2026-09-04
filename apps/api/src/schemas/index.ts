@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 import { CompetencyDomain } from '../models/Competency';
 
 // Admin Schemas
@@ -68,6 +68,27 @@ export const updateProfileSchema = z.object({
   body: z.object({
     firstName: z.string().min(1).optional(),
     lastName: z.string().min(1).optional(),
+    mobileNumber: z.string().optional(),
+    organization: z.string().optional(),
+    departmentName: z.string().optional(),
+    designationName: z.string().optional(),
+    functionalRole: z.string().optional(),
+    experience: z.object({
+      totalExperience: z.string().optional(),
+      currentRoleExperience: z.string().optional(),
+      previousDesignation: z.string().optional(),
+      previousOrganization: z.string().optional(),
+      majorResponsibilities: z.string().optional(),
+    }).optional(),
+    skills: z.array(z.object({
+      skill: z.string(),
+      proficiency: z.enum(['Beginner', 'Intermediate', 'Advanced', 'Expert'])
+    })).optional(),
+    learningPreferences: z.object({
+      preferredFormats: z.array(z.string()).optional(),
+      preferredLanguage: z.string().optional(),
+      learningGoals: z.array(z.string()).optional()
+    }).optional(),
     department: z.string().regex(/^[0-9a-fA-F]{24}$/).optional(),
     designation: z.string().regex(/^[0-9a-fA-F]{24}$/).optional(),
     bio: z.string().optional()
@@ -89,3 +110,4 @@ export const createQuestionSchema = z.object({
     isActive: z.boolean().optional()
   })
 });
+

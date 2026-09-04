@@ -413,3 +413,16 @@ Executed the comprehensive frontend migration transforming all 40 logical screen
 
 
 
+
+## Recent Updates (Registration & Profile Synchronization)
+
+### 1. Extended Registration Flow
+- **Wizard Implementation**: Re-engineered the registration flow into a multi-step wizard (pps/web/src/pages/auth/Register.tsx).
+- **Comprehensive Data Collection**: Collects granular organizational metadata (Organization, Department, Designation, Functional Role), experience levels, professional skills, and learning preferences during onboarding.
+- **Hierarchical Metadata APIs**: Built backend metadata endpoints (GET /api/metadata/*) referencing organizationStructure.ts to support dynamic, cascading dropdown selections throughout the registration wizard.
+- **CSV Data Seed**: Created generate-csv.js to automatically parse and export the master organizational hierarchy to Organization_Hierarchy.csv for data verification.
+
+### 2. Profile Data Synchronization
+- **Backend Model Updates**: Expanded the Mongoose Profile model schema to securely persist the expansive onboarding data into the database alongside legacy attributes.
+- **Dynamic Profile Display**: Overhauled the frontend Profile component (pps/web/src/pages/learner/Profile.tsx) to pull authentic user properties dynamically via useSWR('/profile') rather than displaying hardcoded mock data. Handled null states safely ("Not added").
+- **Edit Profile Synchronization**: Revamped the Edit Profile form (pps/web/src/pages/learner/ProfileEdit.tsx) to dynamically populate with live backend data and save partial modifications utilizing the expanded updateProfileSchema.

@@ -106,7 +106,7 @@ export const Register = () => {
     setError(''); setIsLoading(true);
     try {
       const res = await authApi.register({
-        email, password, firstName, lastName, mobileNumber, employeeId,
+        email, password, firstName, lastName, mobileNumber,
         organization, departmentName: department, designationName: designation, functionalRole,
         experience: { totalExperience, currentRoleExperience, previousDesignation, previousOrganization, majorResponsibilities },
         skills, learningPreferences: { preferredFormats, preferredLanguage, learningGoals }
@@ -166,29 +166,23 @@ export const Register = () => {
               {step === 1 && (
                 <div className="space-y-md animate-in fade-in slide-in-from-bottom-4 duration-300">
                   <h3 className="font-title-lg text-title-lg mb-md">Step 1: Basic Information</h3>
-                  <div className="grid grid-cols-2 gap-md">
-                    <div>
-                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">First Name</label>
-                      <input required value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                    <div className="grid grid-cols-2 gap-md mb-md">
+                      <div>
+                        <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">First Name</label>
+                        <input required value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                      </div>
+                      <div>
+                        <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Last Name</label>
+                        <input required value={lastName} onChange={e => setLastName(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Last Name</label>
-                      <input required value={lastName} onChange={e => setLastName(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
+                    <div className="mb-md">
+                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Official Email</label>
+                      <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
                     </div>
-                  </div>
-                  <div>
-                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Official Email</label>
-                    <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-md">
-                    <div>
-                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Mobile Number</label>
-                      <input required value={mobileNumber} onChange={e => setMobileNumber(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
-                    </div>
-                    <div>
-                      <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Employee ID</label>
-                      <input required value={employeeId} onChange={e => setEmployeeId(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
-                    </div>
+                  <div className="mb-md">
+                    <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Mobile Number</label>
+                    <input required value={mobileNumber} onChange={e => setMobileNumber(e.target.value)} className="w-full bg-surface-container-lowest border border-surface-variant rounded h-12 px-3 outline-none focus:border-primary" />
                   </div>
                   <div className="grid grid-cols-2 gap-md">
                     <div>
@@ -351,7 +345,7 @@ export const Register = () => {
                   <div className="bg-surface-container p-4 rounded border border-surface-variant space-y-4">
                     <div>
                       <h4 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Identity</h4>
-                      <p>{firstName} {lastName} ({email}) - {employeeId}</p>
+                      <p>{firstName} {lastName} ({email}) - Mobile: {mobileNumber}</p>
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Role</h4>
@@ -399,4 +393,6 @@ export const Register = () => {
     </div>
   );
 };
+
+
 
