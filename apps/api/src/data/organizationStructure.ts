@@ -1,117 +1,47 @@
 ﻿export const ORGANIZATIONS = [
-  { id: 'D001', name: 'Ministry of Statistics & Programme Implementation (MoSPI)' },
-  { id: 'D002', name: 'National Statistical Office (NSO)' },
-  { id: 'D003', name: 'National Statistical Commission (NSC)' },
-  { id: 'D004', name: 'National Statistical Training Academy (NSSTA)' },
-  { id: 'D005', name: 'State Directorate of Economics & Statistics' },
-  { id: 'D006', name: 'Ministry of Agriculture & Farmers Welfare' },
-  { id: 'D007', name: 'Ministry of Health & Family Welfare' },
-  { id: 'D008', name: 'Ministry of Labour & Employment' },
-  { id: 'D009', name: 'Ministry of Finance' },
-  { id: 'D010', name: 'Ministry of Education' }
+  { id: 'ORG_1', name: 'Ministry of Statistics & Programme Implementation (MoSPI)' }
 ];
 
 export const DEPARTMENTS_BY_ORG: Record<string, { id: string; name: string }[]> = {
-  'D001': [
-    { id: 'DEP_M1', name: 'Central Statistics Office (CSO)' },
-    { id: 'DEP_M2', name: 'National Sample Survey Office (NSSO)' },
-    { id: 'DEP_M3', name: 'Programme Implementation Wing' }
-  ],
-  'D002': [
-    { id: 'DEP_N1', name: 'Survey Design and Research' },
-    { id: 'DEP_N2', name: 'Field Operations Division' },
-    { id: 'DEP_N3', name: 'Data Processing Division' }
-  ],
-  'D003': [
-    { id: 'DEP_C1', name: 'Policy and Coordination' },
-    { id: 'DEP_C2', name: 'Statistical Audit' }
-  ],
-  'D004': [
-    { id: 'DEP_T1', name: 'Training Operations' },
-    { id: 'DEP_T2', name: 'Curriculum Development' }
-  ],
-  'D005': [
-    { id: 'DEP_S1', name: 'State Statistical Coordination' },
-    { id: 'DEP_S2', name: 'Economic Census' }
-  ],
-  'D006': [{ id: 'DEP_A1', name: 'Agricultural Statistics' }],
-  'D007': [{ id: 'DEP_H1', name: 'Health Intelligence' }],
-  'D008': [{ id: 'DEP_L1', name: 'Labour Bureau' }],
-  'D009': [{ id: 'DEP_F1', name: 'Economic Affairs' }],
-  'D010': [{ id: 'DEP_E1', name: 'Educational Statistics' }]
+  'ORG_1': [
+    { id: 'DEP_1', name: 'National Statistical Office (NSO)' },
+    { id: 'DEP_2', name: 'National Statistical Training Academy (NSSTA)' }
+  ]
 };
 
 export const DESIGNATIONS_BY_DEPT: Record<string, { id: string; name: string }[]> = {
-  'DEP_M1': [
-    { id: 'DES_M1_1', name: 'Director General' },
-    { id: 'DES_M1_2', name: 'Additional Director General' },
-    { id: 'DES_M1_3', name: 'Director' },
-    { id: 'DES_M1_4', name: 'Joint Director' },
-    { id: 'DES_M1_5', name: 'Deputy Director' },
-    { id: 'DES_M1_6', name: 'Assistant Director' },
-    { id: 'DES_M1_7', name: 'Senior Statistical Officer' },
-    { id: 'DES_M1_8', name: 'Junior Statistical Officer' }
+  'DEP_1': [
+    { id: 'DES_1_1', name: 'Junior Statistical Officer' },
+    { id: 'DES_1_2', name: 'Senior Statistical Officer' },
+    { id: 'DES_1_3', name: 'Statistical Officer' },
+    { id: 'DES_1_4', name: 'Statistical Analyst' },
+    { id: 'DES_1_5', name: 'Data Analyst' },
+    { id: 'DES_1_6', name: 'Survey Officer' },
+    { id: 'DES_1_7', name: 'Research Officer' },
+    { id: 'DES_1_8', name: 'Data Management Officer' },
+    { id: 'DES_1_9', name: 'IT / Technical Officer' }
   ],
-  'DEP_M2': [
-    { id: 'DES_M2_1', name: 'Deputy Director General' },
-    { id: 'DES_M2_2', name: 'Director' },
-    { id: 'DES_M2_3', name: 'Senior Statistical Officer' },
-    { id: 'DES_M2_4', name: 'Junior Statistical Officer' }
-  ],
-  'DEP_N2': [
-    { id: 'DES_N2_1', name: 'Deputy Director General' },
-    { id: 'DES_N2_2', name: 'Superintending Officer' },
-    { id: 'DES_N2_3', name: 'Field Investigator' }
+  'DEP_2': [
+    { id: 'DES_2_1', name: 'Project Officer' },
+    { id: 'DES_2_2', name: 'Deputy Director' },
+    { id: 'DES_2_3', name: 'Director' }
   ]
 };
 
 export const FUNCTIONAL_ROLES_BY_DESIG: Record<string, { id: string; name: string }[]> = {
-  'DES_M1_7': [
-    { id: 'FR_1', name: 'Statistical Analysis' },
-    { id: 'FR_2', name: 'Data Analysis' },
-    { id: 'FR_3', name: 'Data Quality & Validation' }
-  ],
-  'DES_M1_8': [
-    { id: 'FR_4', name: 'Survey Operations' },
-    { id: 'FR_5', name: 'Data Management' }
-  ],
-  'DES_N2_3': [
-    { id: 'FR_6', name: 'Survey Operations' },
-    { id: 'FR_7', name: 'Sampling' }
-  ]
+  'DES_1_1': [{ id: 'FR_1_1_1', name: 'Survey Design / Sampling' }],
+  'DES_1_2': [{ id: 'FR_1_2_1', name: 'Sampling / Labour Statistics / Price Statistics' }],
+  'DES_1_3': [{ id: 'FR_1_3_1', name: 'National Accounts / Price Statistics / Agricultural & Industrial Statistics' }],
+  'DES_1_4': [{ id: 'FR_1_4_1', name: 'Data Analytics / Data Visualization' }],
+  'DES_1_5': [{ id: 'FR_1_5_1', name: 'Python / SQL / Data Visualization / AI-ML' }],
+  'DES_1_6': [{ id: 'FR_1_6_1', name: 'Survey Design / Sampling' }],
+  'DES_1_7': [{ id: 'FR_1_7_1', name: 'SDG Indicators / Metadata / Data Quality' }],
+  'DES_1_8': [{ id: 'FR_1_8_1', name: 'SQL / Data Quality / Data Privacy / Open Data' }],
+  'DES_1_9': [{ id: 'FR_1_9_1', name: 'APIs / Cloud / Cybersecurity / Digital Governance' }],
+  'DES_2_1': [{ id: 'FR_2_1_1', name: 'Project Management / Change Management / Communication' }, { id: 'FR_2_1_2', name: 'Project Management' }],
+  'DES_2_2': [{ id: 'FR_2_2_1', name: 'Leadership / Decision Making / Change Management' }],
+  'DES_2_3': [{ id: 'FR_2_3_1', name: 'Leadership / Decision Making / Communication / Ethics' }]
 };
 
-export const DEFAULT_DESIGNATIONS = [
-  { id: 'DES_DEF_1', name: 'Director' },
-  { id: 'DES_DEF_2', name: 'Deputy Director' },
-  { id: 'DES_DEF_3', name: 'Senior Statistical Officer' },
-  { id: 'DES_DEF_4', name: 'Junior Statistical Officer' },
-  { id: 'DES_DEF_5', name: 'Other' }
-];
-
-export const DEFAULT_FUNCTIONAL_ROLES = [
-  { id: 'FR_DEF_1', name: 'Statistical Analysis' },
-  { id: 'FR_DEF_2', name: 'Data Analysis' },
-  { id: 'FR_DEF_3', name: 'Survey Operations' },
-  { id: 'FR_DEF_4', name: 'Sampling' },
-  { id: 'FR_DEF_5', name: 'Data Quality & Validation' },
-  { id: 'FR_DEF_6', name: 'Research & Analysis' },
-  { id: 'FR_DEF_7', name: 'Economic Statistics' },
-  { id: 'FR_DEF_8', name: 'Social Statistics' },
-  { id: 'FR_DEF_9', name: 'Demographic Statistics' },
-  { id: 'FR_DEF_10', name: 'Statistical Computing' },
-  { id: 'FR_DEF_11', name: 'Data Management' },
-  { id: 'FR_DEF_12', name: 'Data Governance' },
-  { id: 'FR_DEF_13', name: 'Policy Analysis' },
-  { id: 'FR_DEF_14', name: 'Programme Management' },
-  { id: 'FR_DEF_15', name: 'Monitoring & Evaluation' },
-  { id: 'FR_DEF_16', name: 'Training & Capacity Building' },
-  { id: 'FR_DEF_17', name: 'Administration' },
-  { id: 'FR_DEF_18', name: 'Finance & Accounts' },
-  { id: 'FR_DEF_19', name: 'IT / Digital Systems' },
-  { id: 'FR_DEF_20', name: 'Database Management' },
-  { id: 'FR_DEF_21', name: 'AI / Machine Learning' },
-  { id: 'FR_DEF_22', name: 'Cyber Security' },
-  { id: 'FR_DEF_23', name: 'e-Governance' },
-  { id: 'FR_DEF_24', name: 'Learning & Development' }
-];
+export const DEFAULT_DESIGNATIONS = [];
+export const DEFAULT_FUNCTIONAL_ROLES = [];

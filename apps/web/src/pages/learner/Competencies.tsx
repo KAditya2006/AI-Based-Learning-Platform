@@ -3,6 +3,7 @@ import useSWR from 'swr';
 import { useNavigate } from 'react-router-dom';
 import { fetchClient } from '../../api/client';
 import type { SkillGap } from '../../api/skillGaps';
+import type { Assessment } from '../../api/assessments';
 import { useAuth } from '../../contexts/AuthContext';
 import { Target, TrendingUp } from 'lucide-react';
 
@@ -13,6 +14,7 @@ export const Competencies = () => {
   
   // For the profile, we use skill gaps which represent the user's current vs required levels
   const { data: gaps, error } = useSWR<SkillGap[]>('/skill-gaps', fetchClient);
+  const { data: assessments } = useSWR<Assessment[]>('/assessments', fetchClient);
 
   const displayName = user?.email?.split('@')[0] || 'Learner';
   const roleName = user?.role === 'LEARNER' ? 'Official' : 'Administrator';
@@ -133,19 +135,18 @@ export const Competencies = () => {
           <h2 className="font-headline-md text-headline-md text-on-surface mb-md border-b border-surface-variant pb-sm">Assessment History</h2>
           <div className="flex flex-col gap-md border-l-2 border-surface-variant ml-sm pl-md">
             
-            <div className="relative">
-              <div className="absolute -left-[25px] top-1 w-4 h-4 rounded-full bg-primary border-2 border-surface"></div>
-              <p className="font-caption text-caption text-on-surface-variant">Recent</p>
-              <p className="font-body-md font-semibold text-on-surface">Platform Onboarding Completed</p>
-              <p className="font-body-md text-on-surface-variant">Initial self-assessment mapped to role requirements.</p>
-            </div>
-            
-            <div className="relative">
-              <div className="absolute -left-[25px] top-1 w-4 h-4 rounded-full bg-surface-variant border-2 border-surface"></div>
-              <p className="font-caption text-caption text-on-surface-variant">Historical</p>
-              <p className="font-body-md font-semibold text-on-surface">Baseline Profile Created</p>
-              <p className="font-body-md text-on-surface-variant">Established baseline for core competencies.</p>
-            </div>
+            {assessments && assessments.length > 0 ? (
+              assessments.map((assessment, idx) => (
+                <div key={assessment._id || idx} className="relative">
+                  <div className={`absolute -left-[25px] top-1 w-4 h-4 rounded-full border-2 border-surface ${idx === 0 ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                  <p className="font-caption text-caption text-on-surface-variant">{idx === 0 ? 'Recent' : 'Historical'}</p>
+                  <p className="font-body-md font-semibold text-on-surface">{assessment.title}</p>
+                  <p className="font-body-md text-on-surface-variant">{assessment.description}</p>
+                </div>
+              ))
+            ) : (
+              <div className="text-on-surface-variant font-body-md">No assessment history available.</div>
+            )}
             
           </div>
         </section>
@@ -154,3 +155,4 @@ export const Competencies = () => {
     </div>
   );
 };
+

@@ -6,6 +6,8 @@ import { fetchClient } from '../../api/client';
 import type { SkillGap } from '../../api/skillGaps';
 import { learningApi } from '../../api/learning';
 import type { Enrollment } from '../../api/learning';
+import type { Assessment } from '../../api/assessments';
+import { aiApi } from '../../api/ai';
 import { BookOpen, Brain, Check, Lock, Play, PlayCircle, Users } from 'lucide-react';
 
 
@@ -20,6 +22,9 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: gaps } = useSWR<SkillGap[]>('/skill-gaps', fetchClient);
+  const { data: assessments } = useSWR<Assessment[]>('/assessments', fetchClient);
+  const { data: recommendationsRes } = useSWR('/ai/learner/recommendations', aiApi.getRecommendations);
+  const recommendations: any[] = (recommendationsRes as any)?.data || recommendationsRes || [];
 
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loadingEnrollments, setLoadingEnrollments] = useState(true);
@@ -108,19 +113,32 @@ export const Dashboard = () => {
             {/* Vertical Line */}
             <div className="absolute left-4 top-2 bottom-2 w-px bg-outline-variant"></div>
             
-            {/* Timeline Item: Completed */}
+            {/* Timeline Item: Assessments */}
             <div className="relative flex gap-md mb-lg">
               <div className="w-8 h-8 rounded-full bg-surface-container-lowest border-2 border-primary flex items-center justify-center z-10 shrink-0">
                 <Check className="text-primary text-[16px]" />
               </div>
               <div className="pt-1">
-                <div className="flex items-center gap-sm mb-xs">
-                  <span className="font-label-caps text-label-caps text-primary bg-primary-fixed px-sm py-xs rounded">COMPLETED</span>
-                  <span className="font-caption text-caption text-on-surface-variant">Prior Knowledge</span>
+                  {assessments && assessments.length > 0 ? (
+                    <>
+                      <div className="flex items-center gap-sm mb-xs">
+                        <span className="font-label-caps text-label-caps text-primary bg-primary-fixed px-sm py-xs rounded">ACTION REQUIRED</span>
+                        <span className="font-caption text-caption text-on-surface-variant">Pending Evaluation</span>
+                      </div>
+                      <h4 className="font-body-lg text-body-lg font-semibold text-on-background">{assessments[0].title}</h4>
+                      <p className="font-body-md text-body-md text-on-surface-variant mt-xs mb-sm">{assessments[0].description}</p>
+                      <button onClick={() => navigate(`/assessments/${assessments[0]._id}/preparation`)} className="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-caps text-label-caps">Take Assessment</button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-sm mb-xs">
+                        <span className="font-label-caps text-label-caps text-on-surface-variant bg-surface-container-high px-sm py-xs rounded border border-outline-variant">UP TO DATE</span>
+                      </div>
+                      <h4 className="font-body-lg text-body-lg font-semibold text-on-background">No Pending Assessments</h4>
+                      <p className="font-body-md text-body-md text-on-surface-variant mt-xs">Your competency profile is complete and up to date.</p>
+                    </>
+                  )}
                 </div>
-                <h4 className="font-body-lg text-body-lg font-semibold text-on-background">Foundational Skills Assessment</h4>
-                <p className="font-body-md text-body-md text-on-surface-variant mt-xs">Successfully established baseline profile.</p>
-              </div>
             </div>
 
             {/* Timeline Item: In Progress (Current) */}
@@ -143,21 +161,7 @@ export const Dashboard = () => {
               </div>
             )}
 
-            {/* Timeline Item: Upcoming */}
-            {gaps && gaps.length > 1 && (
-              <div className="relative flex gap-md">
-                <div className="w-8 h-8 rounded-full bg-surface-container border border-outline-variant flex items-center justify-center z-10 shrink-0">
-                  <Lock className="text-outline text-[16px]" />
-                </div>
-                <div className="pt-1 opacity-70">
-                  <div className="flex items-center gap-sm mb-xs">
-                    <span className="font-label-caps text-label-caps text-on-surface-variant">UPCOMING</span>
-                  </div>
-                  <h4 className="font-body-lg text-body-lg font-semibold text-on-background">{gaps[1].competency.name}</h4>
-                  <p className="font-body-md text-body-md text-on-surface-variant mt-xs">Unlocks upon completion of current module.</p>
-                </div>
-              </div>
-            )}
+
           </div>
         </section>
       </div>
@@ -175,48 +179,29 @@ export const Dashboard = () => {
           </p>
           
           <div className="flex flex-col gap-md">
-            {/* Recommendation 1 */}
-            <a href="#" className="group block border border-outline-variant rounded p-sm hover:border-primary hover:bg-surface-container-low transition-colors active:translate-y-[1px]">
-              <div className="flex gap-sm">
-                <div className="w-16 h-16 bg-surface-container-high rounded shrink-0 overflow-hidden flex items-center justify-center">
-                   <PlayCircle className="text-on-surface-variant group-hover:text-primary transition-colors text-[32px]" />
-                </div>
-                <div className="flex flex-col justify-center">
-                  <span className="font-caption text-caption text-primary mb-xs">VIDEO LECTURE · 45 MIN</span>
-                  <h4 className="font-body-md text-body-md font-semibold text-on-background group-hover:text-primary transition-colors line-clamp-2">Recent Shifts in Inter-Agency Data Sharing Protocols</h4>
-                </div>
+            {recommendations.length === 0 ? (
+              <div className="p-md text-center text-on-surface-variant text-body-md border border-outline-variant rounded">
+                Complete an assessment to get personalized recommendations.
               </div>
-            </a>
-
-            {/* Recommendation 2 */}
-            <a href="#" className="group block border border-outline-variant rounded p-sm hover:border-primary hover:bg-surface-container-low transition-colors active:translate-y-[1px]">
-              <div className="flex gap-sm">
-                <div className="w-16 h-16 bg-surface-container-high rounded shrink-0 overflow-hidden flex items-center justify-center">
-                  <Users className="text-on-surface-variant group-hover:text-primary transition-colors text-[32px]" />
+            ) : (
+              recommendations.slice(0, 3).map((rec: any) => (
+                <div 
+                  key={rec._id} 
+                  onClick={() => rec.resourceId && navigate(`/learning/${rec.resourceId}`)}
+                  className={`group block border border-outline-variant rounded p-sm hover:border-primary hover:bg-surface-container-low transition-colors active:translate-y-[1px] ${rec.resourceId ? 'cursor-pointer' : 'cursor-default opacity-70'}`}
+                >
+                  <div className="flex gap-sm">
+                    <div className="w-16 h-16 bg-surface-container-high rounded shrink-0 overflow-hidden flex items-center justify-center">
+                       <PlayCircle className="text-on-surface-variant group-hover:text-primary transition-colors text-[32px]" />
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <span className="font-caption text-caption text-primary mb-xs uppercase">{rec.source} · {rec.estimatedEffortMinutes || 30} MIN</span>
+                      <h4 className="font-body-md text-body-md font-semibold text-on-background group-hover:text-primary transition-colors line-clamp-2">{rec.title}</h4>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex flex-col justify-center">
-                  <span className="font-caption text-caption text-primary mb-xs">WORKSHOP · NOV 12</span>
-                  <h4 className="font-body-md text-body-md font-semibold text-on-background group-hover:text-primary transition-colors line-clamp-2">Cross-Functional Tabletop Exercise</h4>
-                </div>
-              </div>
-            </a>
-            
-            {/* Recommendation 3 */}
-            <a href="#" className="group block border border-outline-variant rounded p-sm hover:border-primary hover:bg-surface-container-low transition-colors active:translate-y-[1px]">
-              <div className="flex gap-sm">
-                <div className="w-16 h-16 bg-surface-container-high rounded shrink-0 overflow-hidden">
-                  <img 
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
-                    alt="Document" 
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6V93XEBcz8csTChDf3SHQstiBzK62dwMHq8bAnUlfll8X8E4ft7Yr-nrFmna0O3U2_7dUnWp_qfotgTvyMAo4MFnSEpJz9sVoyAHC5TkxQiqt6KWDGrKMtRnYqXF5oVjMSnTB_E9l5BxSyU97lpHRDT2prmYcK6NXZEApgWy2gOpNnx3rG6IUuDNPm5aQmaG1nOZQHwKSrnmEir0hOIwUMIJkhYhvN0B5sEdhClHe7uFO01pRwhq33g"
-                  />
-                </div>
-                <div className="flex flex-col justify-center">
-                  <span className="font-caption text-caption text-primary mb-xs">READING · 15 MIN</span>
-                  <h4 className="font-body-md text-body-md font-semibold text-on-background group-hover:text-primary transition-colors line-clamp-2">Advanced Security Protocols Overview</h4>
-                </div>
-              </div>
-            </a>
+              ))
+            )}
           </div>
 
           <button onClick={() => navigate('/recommendations')} className="w-full mt-lg bg-surface-container-lowest border border-primary text-primary font-label-caps text-label-caps py-sm rounded hover:bg-primary-fixed transition-colors">
@@ -228,3 +213,4 @@ export const Dashboard = () => {
     </div>
   );
 };
+

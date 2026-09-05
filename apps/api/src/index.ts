@@ -1,4 +1,4 @@
-﻿import express, { Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
@@ -8,11 +8,12 @@ import apiRoutes from './routes';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
 import { requestLogger } from './middleware/requestLogger';
-import { JobService } from './services/JobService';
+import { JobService } from './services';
+import { emailService } from './services';
 import path from 'path';
 
 // Load environment variables
-dotenv.config({ path: '../../.env' });
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 export const app = express();
 const PORT = process.env.PORT || 4000;
@@ -116,6 +117,9 @@ if (process.env.NODE_ENV !== 'test') {
   };
   
   connectDB().then(async () => {
+    // Test SMTP Configuration
+    await emailService.init();
+
     await JobService.recoverStaleJobs();
     
     const server = app.listen(PORT, () => {

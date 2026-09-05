@@ -19,6 +19,8 @@ export interface IUser extends Document {
   status: UserStatus;
   emailVerified: boolean;
   emailVerificationToken?: string;
+  emailVerificationExpires?: Date;
+  verificationAttempts?: number;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   lastLoginAt?: Date;
@@ -35,6 +37,8 @@ const userSchema = new Schema<IUser>(
     status: { type: String, enum: Object.values(UserStatus), default: UserStatus.ACTIVE },
     emailVerified: { type: Boolean, default: false },
     emailVerificationToken: { type: String },
+    emailVerificationExpires: { type: Date },
+    verificationAttempts: { type: Number, default: 0 },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
     lastLoginAt: { type: Date }

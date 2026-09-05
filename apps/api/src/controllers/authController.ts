@@ -1,4 +1,4 @@
-﻿import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { AuthService } from '../services';
 
@@ -83,8 +83,8 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 
 export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { token, newPassword } = req.body;
-    await AuthService.resetPassword(token, newPassword);
+    const { email, otp, newPassword } = req.body;
+    await AuthService.resetPassword(email, otp, newPassword);
     res.status(200).json({ success: true, data: { message: 'Password has been successfully reset.' } });
   } catch (error: any) {
     error.statusCode = 400;
@@ -95,12 +95,24 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
 
 export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { token } = req.body;
-    await AuthService.verifyEmail(token);
+    const { email, otp } = req.body;
+    await AuthService.verifyEmail(email, otp);
     res.status(200).json({ success: true, data: { message: 'Email has been successfully verified.' } });
   } catch (error: any) {
     error.statusCode = 400;
     error.code = 'VERIFICATION_FAILED';
+    next(error);
+  }
+};
+
+export const resendVerification = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+    await AuthService.resendVerification(email);
+    res.status(200).json({ success: true, data: { message: 'If the email exists and is unverified, a new verification code has been sent.' } });
+  } catch (error: any) {
+    error.statusCode = 400;
+    error.code = 'RESEND_FAILED';
     next(error);
   }
 };

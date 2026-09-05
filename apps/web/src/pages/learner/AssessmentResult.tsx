@@ -42,7 +42,7 @@ export const AssessmentResult: React.FC = () => {
               Assessment Result
             </span>
             <h1 className="font-display-lg text-display-lg text-on-background">
-              Strategic Leadership Assessment
+              Assessment Completed
             </h1>
             <p className="font-body-md text-body-md text-on-surface-variant mt-sm">
               Completed on {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • Proctored Session
@@ -54,14 +54,12 @@ export const AssessmentResult: React.FC = () => {
           </button>
         </div>
 
-        {/* Bento Grid Layout */}
+        {/* Overall Proficiency Card */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-lg">
-          
-          {/* Overall Proficiency Card */}
-          <div className="md:col-span-4 bg-surface-container-lowest border border-surface-variant rounded-lg p-lg bento-card flex flex-col justify-between h-full">
+          <div className="md:col-span-12 bg-surface-container-lowest border border-surface-variant rounded-lg p-lg bento-card flex flex-col justify-between h-full">
             <div>
-              <h2 className="font-headline-sm text-headline-sm text-on-background mb-xs">Overall Proficiency</h2>
-              <p className="font-body-md text-body-md text-on-surface-variant mb-md">Compared to institutional average</p>
+              <h2 className="font-headline-sm text-headline-sm text-on-background mb-xs">Overall Score</h2>
+              <p className="font-body-md text-body-md text-on-surface-variant mb-md">Your calculated score for this assessment.</p>
             </div>
             
             <div className="flex items-end gap-sm mb-md mt-lg">
@@ -79,108 +77,16 @@ export const AssessmentResult: React.FC = () => {
             </div>
           </div>
 
-          {/* Competency Breakdown Card */}
-          <div className="md:col-span-8 bg-surface-container-lowest border border-surface-variant rounded-lg p-lg bento-card">
-            <h2 className="font-headline-sm text-headline-sm text-on-background mb-md pb-sm border-b border-outline-variant">Competency Breakdown</h2>
-            <div className="space-y-md">
-              <div className="flex items-center gap-md">
-                <div className="w-1/3 font-body-md text-body-md text-on-background font-semibold">Strategic Planning</div>
-                <div className="flex-grow">
-                  <div className="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden">
-                    <div className="bg-primary h-1.5 rounded-full" style={{ width: '90%' }}></div>
-                  </div>
-                </div>
-                <div className="w-12 text-right font-body-md text-body-md text-primary font-bold">90%</div>
-              </div>
-              <div className="flex items-center gap-md">
-                <div className="w-1/3 font-body-md text-body-md text-on-background font-semibold">Team Alignment</div>
-                <div className="flex-grow">
-                  <div className="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden">
-                    <div className="bg-primary h-1.5 rounded-full" style={{ width: '85%' }}></div>
-                  </div>
-                </div>
-                <div className="w-12 text-right font-body-md text-body-md text-primary font-bold">85%</div>
-              </div>
-              <div className="flex items-center gap-md">
-                <div className="w-1/3 font-body-md text-body-md text-on-background font-semibold">Change Management</div>
-                <div className="flex-grow">
-                  <div className="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden">
-                    <div className="bg-outline h-1.5 rounded-full" style={{ width: '65%' }}></div>
-                  </div>
-                </div>
-                <div className="w-12 text-right font-body-md text-body-md text-on-surface-variant">65%</div>
-              </div>
-              <div className="flex items-center gap-md">
-                <div className="w-1/3 font-body-md text-body-md text-on-background font-semibold">Decision Making</div>
-                <div className="flex-grow">
-                  <div className="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden">
-                    <div className="bg-outline h-1.5 rounded-full" style={{ width: '70%' }}></div>
-                  </div>
-                </div>
-                <div className="w-12 text-right font-body-md text-body-md text-on-surface-variant">70%</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Verified Strengths */}
-          <div className="md:col-span-6 bg-surface-container-lowest border border-surface-variant rounded-lg p-lg bento-card">
-            <div className="flex items-center gap-sm mb-md pb-sm border-b border-outline-variant">
-              <CheckCircle className="text-primary" />
-              <h2 className="font-headline-sm text-headline-sm text-on-background">Verified Strengths</h2>
-            </div>
-            <ul className="space-y-sm list-none font-body-md text-body-md text-on-surface-variant">
-              <li className="flex items-start gap-sm">
-                <span className="text-primary mt-1">•</span>
-                <span>Demonstrated exceptional understanding of long-term strategic alignment.</span>
-              </li>
-              <li className="flex items-start gap-sm">
-                <span className="text-primary mt-1">•</span>
-                <span>Effectively utilized communication frameworks to align cross-functional teams.</span>
-              </li>
-              <li className="flex items-start gap-sm">
-                <span className="text-primary mt-1">•</span>
-                <span>High accuracy in evaluating strategic risks.</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Identified Gaps */}
-          <div className="md:col-span-6 bg-surface-container-lowest border border-surface-variant rounded-lg p-lg bento-card">
-            <div className="flex items-center gap-sm mb-md pb-sm border-b border-outline-variant">
-              <AlertCircle className="text-outline" />
-              <h2 className="font-headline-sm text-headline-sm text-on-background">Identified Gaps</h2>
-            </div>
-            <ul className="space-y-sm list-none font-body-md text-body-md text-on-surface-variant">
-              <li className="flex items-start gap-sm">
-                <span className="text-outline mt-1">•</span>
-                <span>Responses indicated a lack of familiarity with agile change management methodologies.</span>
-              </li>
-              <li className="flex items-start gap-sm">
-                <span className="text-outline mt-1">•</span>
-                <span>Struggled with selecting appropriate intervention strategies during conflict.</span>
-              </li>
-              <li className="flex items-start gap-sm">
-                <span className="text-outline mt-1">•</span>
-                <span>Delegation prioritization could be improved.</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Recommended Path Section */}
-          <div className="md:col-span-12 bg-surface-container-low border border-surface-variant rounded-lg p-lg mt-md flex flex-col md:flex-row items-center justify-between gap-lg">
+          {/* Recommended Action Section */}
+          <div className="md:col-span-12 bg-surface-container-low border border-surface-variant rounded-lg p-lg flex flex-col md:flex-row items-center justify-between gap-lg">
             <div className="flex-grow">
-              <span className="bg-[#FCDCCC] text-[#1A1614] px-2 py-1 rounded font-label-caps text-label-caps mb-sm inline-block">Action Required</span>
-              <h3 className="font-headline-md text-headline-md text-on-background mb-xs">Change Management Advanced Module</h3>
+              <h3 className="font-headline-md text-headline-md text-on-background mb-xs">Next Steps</h3>
               <p className="font-body-md text-body-md text-on-surface-variant max-w-2xl">
-                Based on your assessment results, we recommend this focused module to address identified gaps in change management and conflict resolution. Completing this path will solidify your overall leadership competency.
+                Your assessment has been officially recorded. Your new competency level will now factor into your skill gap analysis. Visit your dashboard to see your updated learning recommendations.
               </p>
-              <div className="flex gap-sm mt-md font-caption text-caption text-on-surface-variant">
-                <span className="flex items-center gap-xs"><Clock className="text-[16px]" /> 4 Hours</span>
-                <span className="flex items-center gap-xs"><BookOpen className="text-[16px]" /> 3 Modules</span>
-              </div>
             </div>
-            <button onClick={() => navigate('/learner/learning')} className="bg-primary text-white border-none rounded px-xl py-md font-label-caps text-label-caps whitespace-nowrap hover:bg-primary-container transition-colors duration-200">
-              Enroll in Pathway
+            <button onClick={() => navigate('/dashboard')} className="bg-primary text-white border-none rounded px-xl py-md font-label-caps text-label-caps whitespace-nowrap hover:bg-primary-container transition-colors duration-200">
+              Go to Dashboard
             </button>
           </div>
           

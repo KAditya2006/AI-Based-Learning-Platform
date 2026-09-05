@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { authApi } from '../../api/auth';
@@ -33,27 +33,27 @@ export const Register = () => {
   const [functionalRole, setFunctionalRole] = useState('');
 
   useEffect(() => {
-    authApi.getOrganizations().then(setOrgs).catch(() => {});
+    authApi.getOrganizations().then(setOrgs).catch((err) => setError('Metadata fetch failed: ' + err.message));
   }, []);
 
   useEffect(() => {
     setDepartment(''); setDesignation(''); setFunctionalRole('');
     if (organization) {
-      authApi.getDepartments(organization).then(setDepts).catch(() => {});
+      authApi.getDepartments(organization).then(setDepts).catch((err) => setError('Failed to fetch departments: ' + err.message));
     } else { setDepts([]); }
   }, [organization]);
 
   useEffect(() => {
     setDesignation(''); setFunctionalRole('');
     if (department) {
-      authApi.getDesignations(department).then(setDesigs).catch(() => {});
+      authApi.getDesignations(department).then(setDesigs).catch((err) => setError('Failed to fetch designations: ' + err.message));
     } else { setDesigs([]); }
   }, [department]);
 
   useEffect(() => {
     setFunctionalRole('');
     if (designation) {
-      authApi.getFunctionalRoles(designation).then(setRoles).catch(() => {});
+      authApi.getFunctionalRoles(designation).then(setRoles).catch((err) => setError('Failed to fetch roles: ' + err.message));
     } else { setRoles([]); }
   }, [designation]);
 
@@ -111,8 +111,8 @@ export const Register = () => {
         experience: { totalExperience, currentRoleExperience, previousDesignation, previousOrganization, majorResponsibilities },
         skills, learningPreferences: { preferredFormats, preferredLanguage, learningGoals }
       });
-      login(res.token, res.user);
-      navigate('/onboarding/profile');
+      // login(res.token, res.user);
+      navigate('/verify-email?email=' + encodeURIComponent(email));
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Registration failed.');
     } finally {
@@ -393,6 +393,8 @@ export const Register = () => {
     </div>
   );
 };
+
+
 
 
 

@@ -2,8 +2,9 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { User, UserRole } from '../models';
 
-dotenv.config({ path: '../../.env' });
+import path from 'path';
 
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
 async function runSmokeTest() {

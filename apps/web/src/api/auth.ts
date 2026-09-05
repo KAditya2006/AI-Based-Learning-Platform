@@ -1,4 +1,4 @@
-﻿import { fetchClient } from './client';
+import { fetchClient } from './client';
 
 export interface User {
   _id: string;
@@ -17,8 +17,9 @@ export const authApi = {
   me: () => fetchClient<{ user: User }>('/auth/me'),
   logout: () => fetchClient<any>('/auth/logout', { method: 'POST' }),
   forgotPassword: (data: { email: string }) => fetchClient<any>('/auth/forgot-password', { data }),
-  resetPassword: (data: { token: string, newPassword: string }) => fetchClient<any>('/auth/reset-password', { data }),
-  verifyEmail: (data: { token: string }) => fetchClient<any>('/auth/verify-email', { data }),
+  resetPassword: (data: { email: string; otp: string; newPassword: string }) => fetchClient<any>('/auth/reset-password', { data }),
+  verifyEmail: (data: { email: string; otp: string }) => fetchClient<any>('/auth/verify-email', { data }),
+  resendVerification: (data: { email: string }) => fetchClient<any>('/auth/resend-verification', { data }),
   getOrganizations: () => fetchClient<any>('/metadata/organizations'),
   getDepartments: (orgId: string) => fetchClient<any>(`/metadata/organizations/${orgId}/departments`),
   getDesignations: (deptId: string) => fetchClient<any>(`/metadata/departments/${deptId}/designations`),

@@ -8,6 +8,7 @@ export * from './QuizService';
 export * from './JobService';
 export * from './IntegrationSyncService';
 export * from './PersonalizationService';
+export * from './EmailService';
 export * from './InsightService';
 export * from './AdminService';
 export * from './NotificationService';

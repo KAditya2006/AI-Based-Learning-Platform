@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { Assessment, Question } from '../models';
+﻿import { Request, Response, NextFunction } from 'express';
+import { Assessment, Question, Profile, Competency } from '../models';
 import { QuizService } from '../services/QuizService';
 
 export const quizController = {
@@ -14,11 +14,35 @@ export const quizController = {
       }
       const limit = parseInt(req.query.limit as string) || 100;
       const skip = parseInt(req.query.skip as string) || 0;
-      const assessments = await Assessment.find(query)
+      
+      let assessments = await Assessment.find(query)
         .populate('competency')
         .skip(skip)
         .limit(Math.min(limit, 100))
         .lean();
+
+      if (req.user?.role === 'LEARNER' && !req.query.competency) {
+        const profile = await Profile.findOne({ user: req.user.userId }).lean();
+        if (profile) {
+          const keywords = [
+            ...(profile.skills || []).map((s: any) => s.skill),
+            profile.functionalRole,
+            profile.departmentName,
+            profile.designationName
+          ].filter(Boolean).map(k => k.toLowerCase());
+
+          if (keywords.length > 0) {
+            assessments.sort((a, b) => {
+              const aText = ((a.competency as any)?.name || '').toLowerCase();
+              const bText = ((b.competency as any)?.name || '').toLowerCase();
+              const aScore = keywords.filter(k => aText.includes(k)).length;
+              const bScore = keywords.filter(k => bText.includes(k)).length;
+              return bScore - aScore;
+            });
+          }
+        }
+      }
+
       res.json({ success: true, data: assessments });
     } catch (error) {
       next(error);
@@ -27,7 +51,6 @@ export const quizController = {
 
   getAssessment: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // Lean populate to avoid returning correctOptionId and explanation to learners
       const assessment = await Assessment.findById(req.params.id)
         .populate('competency')
         .lean();
@@ -35,14 +58,12 @@ export const quizController = {
       if (!assessment) {
         const err: any = new Error('Assessment not found');
         err.statusCode = 404;
-        err.code = 'NOT_FOUND';
         throw err;
       }
       
       const questions = await Question.find({ _id: { $in: assessment.questions } }).lean();
       
       if (req.user?.role !== 'ADMIN') {
-        // Strip sensitive info
         questions.forEach(q => {
           delete (q as any).correctOptionId;
           delete (q as any).explanation;
@@ -71,7 +92,6 @@ export const quizController = {
       if (!assessment) {
         const err: any = new Error('Assessment not found');
         err.statusCode = 404;
-        err.code = 'NOT_FOUND';
         throw err;
       }
       res.json({ success: true, data: assessment });
@@ -115,3 +135,4 @@ export const quizController = {
     }
   }
 };
+

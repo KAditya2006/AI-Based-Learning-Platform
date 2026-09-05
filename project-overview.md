@@ -1,4 +1,4 @@
-﻿# Project Overview: AI-enabled Skill Intelligence & Personalized Learning Platform
+# Project Overview: AI-enabled Skill Intelligence & Personalized Learning Platform
 
 ## About the Project
 An AI-enabled learning platform for officials in India's Official Statistical System (Ministry of Statistics & Programme Implementation - DIID).
@@ -417,12 +417,40 @@ Executed the comprehensive frontend migration transforming all 40 logical screen
 ## Recent Updates (Registration & Profile Synchronization)
 
 ### 1. Extended Registration Flow
-- **Wizard Implementation**: Re-engineered the registration flow into a multi-step wizard (pps/web/src/pages/auth/Register.tsx).
+- **Wizard Implementation**: Re-engineered the registration flow into a multi-step wizard ( pps/web/src/pages/auth/Register.tsx).
 - **Comprehensive Data Collection**: Collects granular organizational metadata (Organization, Department, Designation, Functional Role), experience levels, professional skills, and learning preferences during onboarding.
 - **Hierarchical Metadata APIs**: Built backend metadata endpoints (GET /api/metadata/*) referencing organizationStructure.ts to support dynamic, cascading dropdown selections throughout the registration wizard.
 - **CSV Data Seed**: Created generate-csv.js to automatically parse and export the master organizational hierarchy to Organization_Hierarchy.csv for data verification.
 
 ### 2. Profile Data Synchronization
 - **Backend Model Updates**: Expanded the Mongoose Profile model schema to securely persist the expansive onboarding data into the database alongside legacy attributes.
-- **Dynamic Profile Display**: Overhauled the frontend Profile component (pps/web/src/pages/learner/Profile.tsx) to pull authentic user properties dynamically via useSWR('/profile') rather than displaying hardcoded mock data. Handled null states safely ("Not added").
-- **Edit Profile Synchronization**: Revamped the Edit Profile form (pps/web/src/pages/learner/ProfileEdit.tsx) to dynamically populate with live backend data and save partial modifications utilizing the expanded updateProfileSchema.
+- **Dynamic Profile Display**: Overhauled the frontend Profile component ( pps/web/src/pages/learner/Profile.tsx) to pull authentic user properties dynamically via useSWR('/profile') rather than displaying hardcoded mock data. Handled null states safely ("Not added").
+- **Edit Profile Synchronization**: Revamped the Edit Profile form ( pps/web/src/pages/learner/ProfileEdit.tsx) to dynamically populate with live backend data and save partial modifications utilizing the expanded updateProfileSchema.
+
+### 3. Production Deployment Hardening
+- **Static Asset Serving**: Configured the Express backend (`apps/api/src/index.ts`) to serve the built Vite frontend statically in production environments, creating a unified server container.
+- **Build Stabilization**: Resolved critical build and deployment errors by fixing UTF-8 BOM encoding issues in `package.json` and reverting overly strict module resolution flags in `tsconfig.json` to ensure clean CI/CD pipelines.
+
+### 4. UI/UX Modernization
+- **Design System Refinement**: Polished the frontend layouts and aesthetics across the application, further aligning with the professional, government-grade Stitch Design System.
+- **Component Optimization**: Refactored core UI elements, including data tables and signup pages, to ensure consistent typography, responsive behaviors, and robust error state handling.
+
+### 4. Email Verification Pipeline
+- **Status:** **FULLY IMPLEMENTED (Sep 2026)**
+- **Tech:** Nodemailer, SMTP (Gmail), 6-Digit OTP
+- **Validation:** 
+  - Eradicated legacy "mock" terminal logging in `AuthService`.
+  - Configured robust `EmailService.ts` with connection verification on startup.
+  - Implemented 15-minute OTP expiry and brute-force protection (5 attempts max).
+  - Designed and connected a `/resend-verification` endpoint with Express rate limiting.
+  - Revamped `VerifyEmail.tsx` frontend to process standard 6-digit codes and handle API resend calls flawlessly.
+
+### 5. Full-Stack End-to-End Audit & Zero-Dummy-Data Enforcement
+- **OTP Password Reset**: Replaced the legacy email link flow with a secure, 15-minute 6-digit OTP verification process implemented fully within the `ForgotPassword` multi-step wizard.
+- **Data Integrity / Zero Dummy Data**: Removed all hardcoded static values from `AssessmentResult.tsx` (now calculates and renders live score vs benchmark), `Dashboard.tsx` (now strictly maps real recommendations and pending assessments), and `Competencies.tsx` (now tracks real assessment history timelines instead of dummy strings).
+- **Comprehensive Testing Validation**: Successfully passed 38/38 end-to-end checks via `validateFullStackE2E.ts`, fully validating the authentication, RBAC boundaries, skill gap recalculation, background job recovery, and AI processing pipelines.
+- **AI Model Resilience**: Upgraded `.env` defaults to utilize `gemini-3.6-flash`, addressing deprecation errors in the intelligence engine while maintaining fallback stability.
+
+### 6. Authentic Profile Setup & Dynamic Routing
+- **Expanded Onboarding**: The `Onboarding.tsx` form was expanded to natively capture and save `organization`, `functionalRole`, and a dynamic `skills` array directly into the MongoDB cluster.
+- **Baseline Assessment Routing**: Altered the post-onboarding flow. Users are no longer dropped into an empty Dashboard; instead, the system immediately fetches available assessments and securely routes new users to an Initial Baseline Assessment test (`/assessments/:id/preparation`).

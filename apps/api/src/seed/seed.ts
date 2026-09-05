@@ -2,8 +2,9 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { User, Profile, Role, Department, CompetencyFramework, Competency, RoleCompetency, UserRole, CompetencyDomain } from '../models';
 import bcrypt from 'bcryptjs';
+import path from 'path';
 
-dotenv.config({ path: '../../.env' });
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 

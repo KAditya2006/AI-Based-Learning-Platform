@@ -1,4 +1,4 @@
-﻿import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
 import bcrypt from 'bcryptjs';
@@ -219,7 +219,7 @@ async function runE2EValidation() {
     const regResult = await AuthService.register({ email: learnerEmail, password: learnerPassword, firstName: 'Rohan', lastName: 'Sharma' }, UserRole.LEARNER);
     recordResult('Learner registration', !!regResult.user && regResult.user.role === UserRole.LEARNER);
 
-    const userDoc = await User.findById(regResult.user._id);
+    const userDoc = await User.findById(regResult.user.id);
     recordResult('Password hashed with bcrypt', !!userDoc && userDoc.passwordHash !== learnerPassword && userDoc.passwordHash.startsWith('$2'));
 
     // Attach role/designation to profile for gap calculation

@@ -7,10 +7,9 @@ import { AdminLayout } from './layouts/AdminLayout';
 // Auth
 import { Login } from './pages/auth/Login';
 import { Register } from './pages/auth/Register';
+import { VerifyEmail } from './pages/auth/VerifyEmail';
 import { About } from './pages/public/About';
 import { ForgotPassword } from './pages/auth/ForgotPassword';
-import { ResetPassword } from './pages/auth/ResetPassword';
-import { VerifyEmail } from './pages/auth/VerifyEmail';
 import { Landing } from './pages/public/Landing';
 import { Features } from './pages/public/Features';
 
@@ -80,10 +79,9 @@ function App() {
         {/* Root Route */}
         <Route path="/" element={<Landing />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
 
         {/* Public Routes */}
         <Route element={<PublicLayout />}>
@@ -149,3 +147,4 @@ function App() {
 }
 
 export default App;
+
