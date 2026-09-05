@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { authApi } from '../../api/auth';
+import { fetchClient } from '../../api/client';
 import { AlertCircle, ArrowRight, ArrowLeft, ChevronDown, HelpCircle, Hourglass, Landmark, Check, ShieldCheck, X } from 'lucide-react';
 
 interface IdName { id: string; name: string }
@@ -111,8 +112,17 @@ export const Register = () => {
         experience: { totalExperience, currentRoleExperience, previousDesignation, previousOrganization, majorResponsibilities },
         skills, learningPreferences: { preferredFormats, preferredLanguage, learningGoals }
       });
-      // login(res.token, res.user);
-      navigate('/verify-email?email=' + encodeURIComponent(email));
+      login(res.token, res.user);
+      try {
+        const assessments = await fetchClient<any[]>('/assessments');
+        if (assessments && assessments.length > 0) {
+          navigate(`/assessments/${assessments[0]._id}/preparation`);
+        } else {
+          navigate('/dashboard');
+        }
+      } catch (err) {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Registration failed.');
     } finally {

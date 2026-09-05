@@ -91,7 +91,7 @@ export const AssessmentResult: React.FC = () => {
           </div>
           
           <div className="md:col-span-12 flex justify-center mt-xl">
-             <Button variant="secondary" size="lg" onClick={() => navigate('/learner/dashboard')}>
+             <Button variant="secondary" size="lg" onClick={() => navigate('/dashboard')}>
                 Return to Dashboard
              </Button>
           </div>
