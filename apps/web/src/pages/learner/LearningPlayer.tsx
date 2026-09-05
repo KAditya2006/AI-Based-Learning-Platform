@@ -79,7 +79,7 @@ export const LearningPlayer: React.FC = () => {
             <ArrowLeft />
           </button>
           <div className="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim font-bold tracking-tight">
-            SkillIntel
+            Learning Mate
           </div>
           <div className="h-6 w-px bg-outline-variant mx-sm"></div>
           <h1 className="font-body-lg text-body-lg text-on-surface-variant hidden md:block truncate max-w-md">{resource.title}</h1>

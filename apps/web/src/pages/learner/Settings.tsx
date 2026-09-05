@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { profileApi } from '../../api/profile';
 import { useAuth } from '../../contexts/AuthContext';
 import { Accessibility, Bell, ChevronDown, LogOut, User } from 'lucide-react';
 
@@ -11,6 +12,43 @@ export const Settings = () => {
       await logout();
     } catch (error) {
       console.error('Failed to log out', error);
+    }
+  };
+
+  const [fullName, setFullName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState({ text: '', type: '' });
+
+  useEffect(() => {
+    if (user?.email) {
+      // Basic fallback if profile data isn't fetched; ideally we'd fetch the full profile here
+      setFullName(user.email.split('@')[0]);
+    }
+    // Attempt to fetch actual profile name
+    profileApi.getProfile().then(res => {
+      if (res.firstName || res.lastName) {
+        setFullName(`${res.firstName || ''} ${res.lastName || ''}`.trim());
+      }
+    }).catch(() => {});
+  }, [user]);
+
+  const handleSaveChanges = async () => {
+    try {
+      setIsSaving(true);
+      setSaveMessage({ text: '', type: '' });
+      const parts = fullName.trim().split(' ');
+      const firstName = parts[0];
+      const lastName = parts.length > 1 ? parts.slice(1).join(' ') : '';
+      
+      await profileApi.updateProfile({ firstName, lastName });
+      setSaveMessage({ text: 'Profile updated successfully!', type: 'success' });
+      
+      setTimeout(() => setSaveMessage({ text: '', type: '' }), 3000);
+    } catch (error) {
+      console.error('Failed to update profile', error);
+      setSaveMessage({ text: 'Failed to update profile. Please try again.', type: 'error' });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -91,7 +129,12 @@ export const Settings = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-lg">
                 <div className="flex flex-col gap-xs">
                   <label className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Full Name</label>
-                  <input type="text" defaultValue={user?.email?.split('@')[0] || "Learner Name"} className="w-full bg-surface-container-lowest border border-surface-variant rounded-lg px-md py-sm font-body-md text-on-background focus:outline-none focus:border-secondary-container focus:ring-2 focus:ring-primary-fixed transition-all duration-200" />
+                  <input 
+                    type="text" 
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full bg-surface-container-lowest border border-surface-variant rounded-lg px-md py-sm font-body-md text-on-background focus:outline-none focus:border-secondary-container focus:ring-2 focus:ring-primary-fixed transition-all duration-200" 
+                  />
                 </div>
                 <div className="flex flex-col gap-xs">
                   <label className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Email Address</label>
@@ -113,8 +156,24 @@ export const Settings = () => {
                 </div>
               </div>
               
-              <div className="pt-md">
-                <button className="bg-surface-container-lowest border border-secondary-container text-secondary-container px-lg py-sm rounded-lg font-body-md font-semibold hover:bg-surface-container-low transition-colors duration-200">Change Password</button>
+              <div className="pt-md flex flex-col gap-sm">
+                {saveMessage.text && (
+                  <p className={`font-body-sm text-sm ${saveMessage.type === 'success' ? 'text-green-600' : 'text-error'}`}>
+                    {saveMessage.text}
+                  </p>
+                )}
+                <div className="flex gap-md">
+                  <button 
+                    onClick={handleSaveChanges}
+                    disabled={isSaving}
+                    className="bg-primary text-on-primary px-lg py-sm rounded-lg font-body-md font-semibold hover:bg-primary-container hover:text-on-primary transition-colors duration-200 shadow-sm disabled:opacity-50"
+                  >
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button className="bg-surface-container-lowest border border-secondary-container text-secondary-container px-lg py-sm rounded-lg font-body-md font-semibold hover:bg-surface-container-low transition-colors duration-200">
+                    Change Password
+                  </button>
+                </div>
               </div>
             </div>
           </section>

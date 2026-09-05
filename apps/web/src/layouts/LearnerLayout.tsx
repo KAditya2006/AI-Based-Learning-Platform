@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Outlet, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
+import useSWR from 'swr';
 import { useAuth } from '../contexts/AuthContext';
+import { profileApi } from '../api/profile';
 import { Menu, X, Bell, Settings, User as UserIcon, BookOpen, Target, TrendingUp, Home, Compass, Route as RouteIcon, HelpCircle } from 'lucide-react';
+import logoIcon from '../assets/icon.png';
 
 export const LearnerLayout = () => {
   const { user, isLoading, logout } = useAuth();
@@ -20,11 +23,16 @@ export const LearnerLayout = () => {
     );
   }
 
+  const { data: profile } = useSWR(user ? '/profile' : null, profileApi.getProfile);
+
   if (!user || user.role !== 'LEARNER') {
     return <Navigate to="/login" replace />;
   }
 
-  const userInitial = (user.email || 'L')[0].toUpperCase();
+  let userInitial = (user.email || 'L')[0].toUpperCase();
+  if (profile?.firstName) {
+    userInitial = profile.firstName[0].toUpperCase() + (profile.lastName ? profile.lastName[0].toUpperCase() : '');
+  }
 
   const navLinks = [
     { label: 'Home', path: '/dashboard', icon: Home },
@@ -40,8 +48,17 @@ export const LearnerLayout = () => {
       {/* Top Navigation Bar */}
       <header className="w-full sticky top-0 h-14 bg-surface border-b border-outline-variant z-50 flex justify-between items-center px-lg max-w-screen-2xl mx-auto">
         <div className="flex items-center gap-xl">
-          <h1 className="font-headline-md text-headline-md text-primary font-bold tracking-tight cursor-pointer" onClick={() => navigate('/dashboard')}>
-            SkillIntel
+          <h1 
+            className="flex items-center gap-2.5 cursor-pointer group" 
+            onClick={() => navigate('/dashboard')}
+          >
+            <img src={logoIcon} alt="Learning Mate Logo" className="w-8 h-8 object-contain transition-transform group-hover:scale-105" />
+            <span 
+              className="hidden md:inline text-[22px] font-semibold tracking-tight text-primary"
+              style={{ fontFamily: "'Outfit', sans-serif" }}
+            >
+              Learning Mate
+            </span>
           </h1>
           
           {/* Desktop Nav */}
@@ -158,7 +175,7 @@ export const LearnerLayout = () => {
 
       {/* Footer */}
       <footer className="w-full py-xl mt-auto bg-surface-container border-t border-outline-variant flex flex-col md:flex-row justify-between items-center px-lg max-w-screen-2xl mx-auto gap-md">
-        <span className="font-label-caps text-label-caps text-on-surface-variant">© 2026 SkillIntel Official Statistical Platform. Ministry of Statistics &amp; Programme Implementation.</span>
+        <span className="font-label-caps text-label-caps text-on-surface-variant">© 2026 Learning Mate Official Statistical Platform. Ministry of Statistics &amp; Programme Implementation.</span>
         <div className="flex flex-wrap gap-md justify-center">
           <Link to="/support" className="font-caption text-caption text-on-surface-variant hover:underline hover:text-primary transition-colors">Support</Link>
           <Link to="/about" className="font-caption text-caption text-on-surface-variant hover:underline hover:text-primary transition-colors">About DIID</Link>

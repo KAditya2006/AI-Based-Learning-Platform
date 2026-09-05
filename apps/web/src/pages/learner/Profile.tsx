@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
@@ -28,7 +28,7 @@ export const Profile = () => {
           <img 
             alt="Official Photo" 
             className="w-full h-full object-cover" 
-            src="https://ui-avatars.com/api/?name=O+F&background=FCDCCC&color=1A1614&size=160"
+            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=FCDCCC&color=1A1614&size=160`}
           />
         </div>
         <div className="flex-1 text-center md:text-left mt-md md:mt-0">

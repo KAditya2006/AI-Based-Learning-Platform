@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import { profileApi, Profile } from '../../api/profile';
@@ -39,21 +39,24 @@ export const ProfileEdit = () => {
 
   useEffect(() => {
     if (formData.organization) {
-      authApi.getDepartments(formData.organization).then(setDepts).catch(() => {});
+      const orgId = orgs.find(o => o.name === formData.organization)?.id || formData.organization;
+      authApi.getDepartments(orgId).then(setDepts).catch(() => {});
     } else { setDepts([]); }
-  }, [formData.organization]);
+  }, [formData.organization, orgs]);
 
   useEffect(() => {
     if (formData.departmentName) {
-      authApi.getDesignations(formData.departmentName).then(setDesigs).catch(() => {});
+      const deptId = depts.find(d => d.name === formData.departmentName)?.id || formData.departmentName;
+      authApi.getDesignations(deptId).then(setDesigs).catch(() => {});
     } else { setDesigs([]); }
-  }, [formData.departmentName]);
+  }, [formData.departmentName, depts]);
 
   useEffect(() => {
     if (formData.designationName) {
-      authApi.getFunctionalRoles(formData.designationName).then(setRoles).catch(() => {});
+      const desigId = desigs.find(d => d.name === formData.designationName)?.id || formData.designationName;
+      authApi.getFunctionalRoles(desigId).then(setRoles).catch(() => {});
     } else { setRoles([]); }
-  }, [formData.designationName]);
+  }, [formData.designationName, desigs]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
@@ -160,7 +163,7 @@ export const ProfileEdit = () => {
               onChange={handleOrgChange}
             >
               <option value="" disabled>Select Organization</option>
-              {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+              {orgs.map(o => <option key={o.id} value={o.name}>{o.name}</option>)}
             </select>
           </div>
           <div>
@@ -173,7 +176,7 @@ export const ProfileEdit = () => {
               disabled={!formData.organization}
             >
               <option value="" disabled>Select Department</option>
-              {depts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+              {depts.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
             </select>
           </div>
           <div>
@@ -186,7 +189,7 @@ export const ProfileEdit = () => {
               disabled={!formData.departmentName}
             >
               <option value="" disabled>Select Designation</option>
-              {desigs.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+              {desigs.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
             </select>
           </div>
           <div>
@@ -199,7 +202,7 @@ export const ProfileEdit = () => {
               disabled={!formData.designationName}
             >
               <option value="" disabled>Select Role</option>
-              {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+              {roles.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
             </select>
           </div>
         </div>

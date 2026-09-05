@@ -13,7 +13,7 @@ export const PublicLayout = () => {
           <div className="bg-primary text-on-primary p-3 rounded-lg mb-4 inline-flex items-center justify-center">
             <BrainCircuit size={32} />
           </div>
-          <h1 className="font-headline-md text-headline-md text-on-background tracking-tight">Skill Intelligence</h1>
+          <h1 className="font-headline-md text-headline-md text-on-background tracking-tight">Learning Mate</h1>
           <p className="font-body-md text-body-md text-on-surface-variant mt-2">Institutional Access Portal</p>
         </div>
 

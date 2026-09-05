@@ -17,7 +17,7 @@ export const Support = () => {
       <div className="mb-xl max-w-3xl mt-xl">
         <h1 className="font-display-lg text-display-lg text-on-surface mb-sm">Contact Us</h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant">
-          For official inquiries, support, or technical assistance regarding the SkillIntel platform. All communications are subject to rigorous institutional security protocols to ensure data integrity and confidentiality.
+          For official inquiries, support, or technical assistance regarding the Learning Mate platform. All communications are subject to rigorous institutional security protocols to ensure data integrity and confidentiality.
         </p>
       </div>
 
@@ -99,7 +99,7 @@ export const Support = () => {
                 <div>
                   <h4 className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-xs">Headquarters</h4>
                   <p className="font-body-md text-body-md text-on-surface">
-                    SkillIntel Command Center<br/>
+                    Learning Mate Command Center<br/>
                     1200 Federal Plaza, NW<br/>
                     Washington, DC 20004
                   </p>
@@ -114,7 +114,7 @@ export const Support = () => {
                   <p className="font-body-md text-body-md text-on-surface">
                     Available 24/7 for cleared personnel.<br/>
                     Phone: +1 (800) 555-0199<br/>
-                    Email: support@skillintel.gov
+                    Email: support@learningmate.gov
                   </p>
                 </div>
               </div>

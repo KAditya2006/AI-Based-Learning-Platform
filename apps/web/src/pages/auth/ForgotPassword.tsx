@@ -60,7 +60,7 @@ export const ForgotPassword = () => {
     <div className="bg-background h-screen flex flex-col items-center justify-center font-body-md text-on-surface antialiased p-container-margin">
       <main className="w-full max-w-[440px] flex flex-col items-center">
         <div className="mb-xl text-center">
-          <h1 className="font-headline-md text-headline-md text-primary mb-sm">Skill Intelligence Platform</h1>
+          <h1 className="font-headline-md text-headline-md text-primary mb-sm">Learning Mate Platform</h1>
           <p className="font-body-md text-body-md text-on-surface-variant">Government Workforce Division</p>
         </div>
 
@@ -197,7 +197,7 @@ export const ForgotPassword = () => {
         {/* Footer */}
         <footer className="mt-xl w-full text-center py-lg px-md">
           <p className="font-caption text-caption text-on-surface-variant mb-sm">
-            © 2024 Skill Intelligence Platform. All rights reserved. Government Workforce Division.
+            © 2024 Learning Mate Platform. All rights reserved. Government Workforce Division.
           </p>
           <div className="flex justify-center flex-wrap gap-md">
             <a href="#" className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors duration-200">Privacy Policy</a>

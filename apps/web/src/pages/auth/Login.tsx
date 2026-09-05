@@ -38,7 +38,7 @@ export const Login = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-container text-on-primary-container mb-md">
             <Landmark className="text-4xl" />
           </div>
-          <h1 className="font-display-lg text-display-lg text-primary">Skill Intelligence</h1>
+          <h1 className="font-display-lg text-display-lg text-primary">Learning Mate</h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant mt-sm">Official Governance Portal</p>
         </div>
 

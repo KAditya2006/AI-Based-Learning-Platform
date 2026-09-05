@@ -99,7 +99,7 @@ export const AssessmentPlayer: React.FC = () => {
       {/* Distraction-free Header */}
       <header className="w-full sticky top-0 h-14 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline flex justify-between items-center px-lg max-w-screen-2xl mx-auto z-50">
         <div className="flex items-center gap-md">
-          <span className="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim font-bold tracking-tight">SkillIntel</span>
+          <span className="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim font-bold tracking-tight">Learning Mate</span>
           <div className="h-6 w-[1px] bg-outline-variant hidden sm:block"></div>
           <span className="font-body-md text-body-md text-on-surface-variant hidden sm:block">{assessment.title}</span>
         </div>

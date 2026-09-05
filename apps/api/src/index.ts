@@ -1,7 +1,7 @@
+import './env';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import apiRoutes from './routes';
@@ -12,8 +12,7 @@ import { JobService } from './services';
 import { emailService } from './services';
 import path from 'path';
 
-// Load environment variables
-dotenv.config({ path: path.join(__dirname, '../.env') });
+
 
 export const app = express();
 const PORT = process.env.PORT || 4000;

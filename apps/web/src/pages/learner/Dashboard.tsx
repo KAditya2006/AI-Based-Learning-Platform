@@ -8,6 +8,7 @@ import { learningApi } from '../../api/learning';
 import type { Enrollment } from '../../api/learning';
 import type { Assessment } from '../../api/assessments';
 import { aiApi } from '../../api/ai';
+import { profileApi } from '../../api/profile';
 import { BookOpen, Brain, Check, Lock, Play, PlayCircle, Users } from 'lucide-react';
 
 
@@ -24,6 +25,7 @@ export const Dashboard = () => {
   const { data: gaps } = useSWR<SkillGap[]>('/skill-gaps', fetchClient);
   const { data: assessments } = useSWR<Assessment[]>('/assessments', fetchClient);
   const { data: recommendationsRes } = useSWR('/ai/learner/recommendations', aiApi.getRecommendations);
+  const { data: profile } = useSWR('/profile', profileApi.getProfile);
   const recommendations: any[] = (recommendationsRes as any)?.data || recommendationsRes || [];
 
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
@@ -36,7 +38,7 @@ export const Dashboard = () => {
     }).catch(() => setLoadingEnrollments(false));
   }, []);
 
-  const displayName = user?.email?.split('@')[0] || 'Official';
+  const displayName = profile?.firstName || user?.email?.split('@')[0] || 'Official';
   const activeEnrollment = enrollments[0];
 
   return (

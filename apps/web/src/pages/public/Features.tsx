@@ -12,7 +12,7 @@ export const Features: React.FC = () => {
       {/* Top Navigation */}
       <header className="w-full sticky top-0 h-14 bg-surface border-b border-outline-variant z-50">
         <div className="flex justify-between items-center px-lg max-w-screen-2xl mx-auto h-full">
-          <div className="font-headline-md text-headline-md text-primary font-bold tracking-tight cursor-pointer" onClick={() => navigate('/')}>Skill Intelligence</div>
+          <div className="font-headline-md text-headline-md text-primary font-bold tracking-tight cursor-pointer" onClick={() => navigate('/')}>Learning Mate</div>
           <nav className="hidden md:flex gap-xl h-full items-center">
             <Link to="/" className="text-on-surface-variant hover:text-primary font-body-lg text-body-lg h-full flex items-center px-sm transition-colors duration-200">Home</Link>
             <Link to="/features" className="text-primary font-semibold border-b-2 border-primary h-full flex items-center px-sm mt-0.5">Features</Link>
@@ -112,7 +112,7 @@ export const Features: React.FC = () => {
       <footer className="w-full py-xl mt-auto bg-surface-container border-t border-outline-variant">
         <div className="flex flex-col md:flex-row justify-between items-center px-lg w-full max-w-screen-2xl mx-auto gap-md">
           <div className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
-            © 2024 Skill Intelligence Platform. All rights reserved.
+            © 2024 Learning Mate Platform. All rights reserved.
           </div>
           <nav className="flex flex-wrap gap-md justify-center">
             <Link to="#" className="font-caption text-caption text-on-surface-variant hover:underline hover:text-primary transition-colors duration-200 cursor-pointer">Privacy Policy</Link>

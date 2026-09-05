@@ -13,7 +13,7 @@ export const Landing: React.FC = () => {
       <header className="w-full h-[56px] flex items-center justify-between px-container-margin md:px-xl z-50 bg-background border-b border-surface-variant">
         <div className="flex items-center gap-xs">
           <Landmark className="text-primary text-[28px]" />
-          <span className="font-headline-sm text-headline-sm font-bold text-primary">Skill Intelligence</span>
+          <span className="font-headline-sm text-headline-sm font-bold text-primary">Learning Mate</span>
         </div>
         <div>
           <Button variant="primary" onClick={() => navigate('/login')}>Login</Button>
@@ -153,7 +153,7 @@ export const Landing: React.FC = () => {
         <div className="max-w-7xl mx-auto px-container-margin md:px-xl flex flex-col md:flex-row justify-between items-center gap-md">
           <div className="flex items-center gap-xs">
             <Landmark className="text-on-surface-variant text-[20px]" />
-            <span className="font-headline-sm text-[16px] font-bold text-on-surface-variant">Skill Intelligence</span>
+            <span className="font-headline-sm text-[16px] font-bold text-on-surface-variant">Learning Mate</span>
           </div>
           <div className="flex gap-lg">
             <Link to="#" className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors">Privacy Policy</Link>

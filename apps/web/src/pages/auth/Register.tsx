@@ -112,17 +112,7 @@ export const Register = () => {
         experience: { totalExperience, currentRoleExperience, previousDesignation, previousOrganization, majorResponsibilities },
         skills, learningPreferences: { preferredFormats, preferredLanguage, learningGoals }
       });
-      login(res.token, res.user);
-      try {
-        const assessments = await fetchClient<any[]>('/assessments');
-        if (assessments && assessments.length > 0) {
-          navigate(`/assessments/${assessments[0]._id}/preparation`);
-        } else {
-          navigate('/dashboard');
-        }
-      } catch (err) {
-        navigate('/dashboard');
-      }
+      navigate(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Registration failed.');
     } finally {
@@ -148,7 +138,7 @@ export const Register = () => {
             
             <div className="flex items-center gap-sm mb-lg">
               <Landmark className="text-primary" />
-              <span className="font-headline-sm text-headline-sm font-bold">Skill Intel</span>
+              <span className="font-headline-sm text-headline-sm font-bold">Learning Mate</span>
             </div>
             
             <div className="mb-xl">
