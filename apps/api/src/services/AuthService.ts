@@ -60,6 +60,7 @@ export class AuthService {
       user: user._id, 
       firstName, 
       lastName,
+      onboardingStatus: 'COMPLETED',
       ...profileData
     });
     
@@ -151,12 +152,16 @@ export class AuthService {
       throw new Error("Invalid verification code");
     }
     
-    user.emailVerified = true; 
-    user.emailVerificationToken = undefined; 
+    user.emailVerified = true;
+    user.emailVerificationToken = undefined;
     user.emailVerificationExpires = undefined;
     user.verificationAttempts = 0;
-    await user.save(); 
-    return true; 
+    await user.save();
+
+    return { 
+      user: { id: user._id, email: user.email, role: user.role }, 
+      token: generateToken(user._id.toString(), user.role) 
+    }; 
   }
   
   static async resendVerification(email: string) {

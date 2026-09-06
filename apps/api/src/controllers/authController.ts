@@ -96,8 +96,8 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
 export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, otp } = req.body;
-    await AuthService.verifyEmail(email, otp);
-    res.status(200).json({ success: true, data: { message: 'Email has been successfully verified.' } });
+    const result = await AuthService.verifyEmail(email, otp);
+    res.status(200).json({ success: true, data: { message: 'Email has been successfully verified.', token: result.token, user: result.user } });
   } catch (error: any) {
     error.statusCode = 400;
     error.code = 'VERIFICATION_FAILED';
