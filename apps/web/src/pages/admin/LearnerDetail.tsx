@@ -16,10 +16,10 @@ export const LearnerDetail = () => {
   if (isLoading) return <div className="p-12 text-center text-on-surface-variant font-body-md">Loading official details...</div>;
   if (error || !member) return <div className="p-8 text-error text-center font-body-md">Failed to load official detail.</div>;
 
-  const memberName = member.name || (member.firstName ? `${member.firstName} ${member.lastName || ''}`.trim() : 'Official');
+  const memberName = (member.profile?.firstName ? `${member.profile.firstName} ${member.profile.lastName || ''}`.trim() : member.name) || 'Official';
   const memberId = member._id || member.id || id || '';
-  const memberDept = typeof member.department === 'object' ? member.department?.name : (member.department || 'General');
-  const memberRole = typeof member.designation === 'object' ? member.designation?.name : (member.role || 'Officer');
+  const memberDept = member.profile?.departmentName || 'General';
+  const memberRole = member.profile?.designationName || member.role || 'Officer';
   const initials = memberName.split(' ').map((n: string) => n[0]).join('').substring(0,2).toUpperCase();
 
   return (
@@ -71,7 +71,7 @@ export const LearnerDetail = () => {
               <div>
                 <label className="font-label-caps text-label-caps text-on-surface-variant block mb-xs uppercase tracking-wider">Institutional Access</label>
                 <span className="inline-flex items-center gap-xs bg-surface-container px-sm py-xs rounded text-caption font-label-caps uppercase">
-                  <Lock className="text-[14px]" /> Tier 2 Clearance
+                  <Lock className="text-[14px]" /> {(member as any)?.role === 'ADMIN' ? 'Tier 4 Admin' : 'Tier 2 Learner'}
                 </span>
               </div>
             </div>
@@ -89,16 +89,16 @@ export const LearnerDetail = () => {
           {/* Quick Metrics */}
           <div className="surface-level-1 rounded-xl p-md space-y-sm">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-on-surface-variant">Overall Proficiency</span>
-              <span className="font-bold text-primary">Level 3.4</span>
+              <span className="text-on-surface-variant">Overall Status</span>
+              <span className="font-bold text-primary">{(member as any)?.status || 'ACTIVE'}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-on-surface-variant">Assessments Passed</span>
-              <span className="font-bold text-on-surface">14 / 16</span>
+              <span className="text-on-surface-variant">Email Verified</span>
+              <span className="font-bold text-on-surface">{(member as any)?.emailVerified ? 'Yes' : 'No'}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-on-surface-variant">Training Hours</span>
-              <span className="font-bold text-on-surface">128 hrs</span>
+              <span className="text-on-surface-variant">Onboarding</span>
+              <span className="font-bold text-on-surface">{(member as any)?.profile?.onboardingStatus || 'NOT_STARTED'}</span>
             </div>
           </div>
         </aside>
@@ -121,79 +121,35 @@ export const LearnerDetail = () => {
           {/* Tab Content: Competency Summary */}
           {activeTab === 'Competency Summary' && (
             <div className="space-y-lg">
-              {/* Radar/Bar Mastery Grid */}
+              {/* Skills/Competencies */}
               <div className="surface-level-1 rounded-xl p-lg space-y-md">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-headline-sm text-headline-sm text-on-surface">Core Competency Matrix</h3>
-                  <span className="font-caption text-caption text-on-surface-variant uppercase">Evaluated via Q3 Standard Benchmark</span>
+                <div className="flex justify-between items-center mb-md">
+                  <h3 className="font-headline-sm text-headline-sm text-on-surface">Self-Reported Skills</h3>
                 </div>
-                
-                <div className="space-y-md mt-md">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1 font-body-md">
-                      <span className="font-medium text-on-surface">Data Literacy &amp; Analysis</span>
-                      <span className="font-bold text-primary">Level 4.0 / 5.0 (Advanced)</span>
-                    </div>
-                    <div className="w-full bg-surface-container rounded-full h-2">
-                      <div className="bg-primary h-2 rounded-full" style={{ width: '80%' }}></div>
-                    </div>
+                {((member as any)?.profile?.skills || []).length > 0 ? (
+                  <div className="space-y-md">
+                    {((member as any).profile.skills).map((skill: any, idx: number) => (
+                      <div key={idx}>
+                        <div className="flex justify-between text-sm mb-1 font-body-md">
+                          <span className="font-medium text-on-surface">{skill.skill}</span>
+                          <span className="font-bold text-primary">{skill.proficiency}</span>
+                        </div>
+                        <div className="w-full bg-surface-container rounded-full h-2">
+                          <div className={`bg-primary h-2 rounded-full`} style={{ width: skill.proficiency === 'Expert' ? '100%' : skill.proficiency === 'Advanced' ? '75%' : skill.proficiency === 'Intermediate' ? '50%' : '25%' }}></div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-
-                  <div>
-                    <div className="flex justify-between text-sm mb-1 font-body-md">
-                      <span className="font-medium text-on-surface">Statistical Governance &amp; Policy</span>
-                      <span className="font-bold text-primary">Level 3.2 / 5.0 (Proficient)</span>
-                    </div>
-                    <div className="w-full bg-surface-container rounded-full h-2">
-                      <div className="bg-primary h-2 rounded-full" style={{ width: '64%' }}></div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-sm mb-1 font-body-md">
-                      <span className="font-medium text-on-surface">Cybersecurity &amp; Data Ethics</span>
-                      <span className="font-bold text-tertiary">Level 2.1 / 5.0 (Developing)</span>
-                    </div>
-                    <div className="w-full bg-surface-container rounded-full h-2">
-                      <div className="bg-tertiary-container h-2 rounded-full" style={{ width: '42%' }}></div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-sm mb-1 font-body-md">
-                      <span className="font-medium text-on-surface">Field Operations Leadership</span>
-                      <span className="font-bold text-primary">Level 4.5 / 5.0 (Expert)</span>
-                    </div>
-                    <div className="w-full bg-surface-container rounded-full h-2">
-                      <div className="bg-primary h-2 rounded-full" style={{ width: '90%' }}></div>
-                    </div>
-                  </div>
-                </div>
+                ) : (
+                  <div className="text-center text-on-surface-variant py-lg">No self-reported skills found.</div>
+                )}
               </div>
 
               {/* Specializations & Badges */}
               <div className="surface-level-1 rounded-xl p-lg">
                 <h3 className="font-headline-sm text-headline-sm text-on-surface mb-md">Verified Specializations</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
-                  <div className="border border-outline-variant rounded-lg p-md flex items-center gap-md bg-surface-container-lowest">
-                    <div className="w-12 h-12 rounded bg-[#FCDCCC] flex items-center justify-center text-primary shrink-0">
-                      <BadgeCheck className="text-2xl" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-on-surface">Survey Sampling Specialist</div>
-                      <div className="text-xs text-on-surface-variant font-caption">Verified: Aug 2026 • MoSPI Board</div>
-                    </div>
-                  </div>
-
-                  <div className="border border-outline-variant rounded-lg p-md flex items-center gap-md bg-surface-container-lowest">
-                    <div className="w-12 h-12 rounded bg-[#FCDCCC] flex items-center justify-center text-primary shrink-0">
-                      <Award className="text-2xl" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-on-surface">Econometric Modeling Lead</div>
-                      <div className="text-xs text-on-surface-variant font-caption">Verified: May 2026 • MoSPI Board</div>
-                    </div>
-                  </div>
+                <div className="text-center text-on-surface-variant py-lg">
+                  No verified specializations yet.
                 </div>
               </div>
             </div>

@@ -86,80 +86,10 @@ export const ContentManagement: React.FC = () => {
       {loading ? (
         <div className="p-8 text-center text-on-surface-variant font-body-md">Loading library assets...</div>
       ) : resources.length === 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
-          {/* Default Preview Item 1 */}
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-[0px_1px_3px_rgba(26,22,20,0.05)] hover:shadow-none hover:border-[#D1C9C4] transition-all flex flex-col group cursor-pointer relative overflow-hidden">
-            <div className="h-32 bg-surface-container border-b border-outline-variant flex items-center justify-center overflow-hidden">
-              <img className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt="Data Analytics" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzvjgqSZpI458Zw7DBPZoWNpY3-EuibG8hngRxPmn9epsT9AScElsqazyTmdPtArtDk8t88kgbsVo3zHoAB-_kTVRWmf2JX_Z4KON534HnVF0F33whYC01rYT93PqJpHelZzqQKezUUyJjQ9z2vV_tq7hKKqgsb8CpaNy_h2BMB_ELkEi0hD3g-BduDBQg409I_Ou1_z4oKTuFHRHpr6MhHMlvIROtFrEH7WWAsMfx5WpLnW0Df6B3bA" />
-            </div>
-            <div className="p-md flex flex-col flex-grow">
-              <div className="flex justify-between items-start mb-sm">
-                <span className="bg-primary text-on-primary px-2 py-0.5 rounded font-label-caps text-[10px] uppercase">Published</span>
-                <span className="text-on-surface-variant font-caption text-caption flex items-center gap-xs uppercase">
-                  <Landmark className="text-[14px]" /> Internal LMS
-                </span>
-              </div>
-              <h3 className="font-headline-sm text-headline-sm text-on-surface mb-xs leading-tight">Advanced Data Interpretation for Public Policy</h3>
-              <p className="font-body-md text-body-md text-on-surface-variant mb-md line-clamp-2">A comprehensive guide to interpreting large datasets to inform governmental policy decisions.</p>
-              <div className="mt-auto border-t border-surface-variant pt-sm">
-                <span className="font-caption text-caption text-on-surface-variant mb-xs block uppercase">Mapped Competencies:</span>
-                <div className="flex flex-wrap gap-xs">
-                  <span className="bg-[#FCDCCC] text-[#1A1614] px-2 py-0.5 rounded font-label-caps text-[10px] uppercase">Data Analysis</span>
-                  <span className="bg-[#FCDCCC] text-[#1A1614] px-2 py-0.5 rounded font-label-caps text-[10px] uppercase">Policy Making</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Default Preview Item 2 */}
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-[0px_1px_3px_rgba(26,22,20,0.05)] hover:shadow-none hover:border-[#D1C9C4] transition-all flex flex-col group cursor-pointer relative overflow-hidden">
-            <div className="h-32 bg-surface-container border-b border-outline-variant flex items-center justify-center overflow-hidden">
-              <img className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt="Strategic Leadership" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD28quiCq_IqjEjNPLHnrPdRqHNX0C-HA0pO2LMypxibcTs_2QSR0o2_-DwAnibU7_5od9fDTIBWkRCUTm0yDDPMqq9jF4Ip0aaXML4BNUpYcXFJEiVBYlgtIXZoazoJhx84Q413SIP9kqLmA2tNnIUSHE-7eszq5oy8OdvpRPv23T6hgKpbAbGu6794pANoHgyiZlHD1-mAVjyig8qMLrrprVH2k-QStVhzqJ_doTDtZgO7sHmL9tBMQ" />
-            </div>
-            <div className="p-md flex flex-col flex-grow">
-              <div className="flex justify-between items-start mb-sm">
-                <span className="bg-surface-container-highest text-on-surface px-2 py-0.5 rounded font-label-caps text-[10px] uppercase">Draft</span>
-                <span className="text-on-surface-variant font-caption text-caption flex items-center gap-xs uppercase">
-                  <Globe className="text-[14px]" /> MoSPI Portal
-                </span>
-              </div>
-              <h3 className="font-headline-sm text-headline-sm text-on-surface mb-xs leading-tight">Strategic Leadership in Statistical Coordination</h3>
-              <p className="font-body-md text-body-md text-on-surface-variant mb-md line-clamp-2">Developing frameworks for institutional coordination across state and central departments.</p>
-              <div className="mt-auto border-t border-surface-variant pt-sm">
-                <span className="font-caption text-caption text-on-surface-variant mb-xs block uppercase">Mapped Competencies:</span>
-                <div className="flex flex-wrap gap-xs">
-                  <span className="bg-[#FCDCCC] text-[#1A1614] px-2 py-0.5 rounded font-label-caps text-[10px] uppercase">Leadership</span>
-                  <span className="bg-[#FCDCCC] text-[#1A1614] px-2 py-0.5 rounded font-label-caps text-[10px] uppercase">Coordination</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Default Preview Item 3 */}
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-[0px_1px_3px_rgba(26,22,20,0.05)] hover:shadow-none hover:border-[#D1C9C4] transition-all flex flex-col group cursor-pointer relative overflow-hidden">
-            <div className="h-32 bg-surface-container border-b border-outline-variant flex items-center justify-center overflow-hidden relative">
-              <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
-                <Lock className="text-[48px] text-primary/40" />
-              </div>
-            </div>
-            <div className="p-md flex flex-col flex-grow">
-              <div className="flex justify-between items-start mb-sm">
-                <span className="bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded font-label-caps text-[10px] uppercase">Review</span>
-                <span className="text-on-surface-variant font-caption text-caption flex items-center gap-xs uppercase">
-                  <Landmark className="text-[14px]" /> Internal LMS
-                </span>
-              </div>
-              <h3 className="font-headline-sm text-headline-sm text-on-surface mb-xs leading-tight">Cybersecurity and Data Protection Protocols</h3>
-              <p className="font-body-md text-body-md text-on-surface-variant mb-md line-clamp-2">Updated compliance training for managing sensitive governmental data networks.</p>
-              <div className="mt-auto border-t border-surface-variant pt-sm">
-                <span className="font-caption text-caption text-on-surface-variant mb-xs block uppercase">Mapped Competencies:</span>
-                <div className="flex flex-wrap gap-xs">
-                  <span className="bg-[#FCDCCC] text-[#1A1614] px-2 py-0.5 rounded font-label-caps text-[10px] uppercase">Cybersecurity</span>
-                  <span className="bg-[#FCDCCC] text-[#1A1614] px-2 py-0.5 rounded font-label-caps text-[10px] uppercase">Compliance</span>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="text-center text-on-surface-variant py-xl">
+          <GraduationCap className="text-4xl mx-auto mb-2 text-on-surface-variant" />
+          <p className="font-headline-sm">No learning assets found.</p>
+          <p className="text-sm mt-1">Import or create a new asset to get started.</p>
         </div>
       ) : (
         <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg' : 'grid-cols-1 gap-md'}`}>

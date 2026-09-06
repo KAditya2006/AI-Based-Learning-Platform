@@ -11,12 +11,10 @@ export interface Material {
 }
 
 export const materialsApi = {
-  uploadMaterial: (data: { title: string; filename: string; mimeType: string; sizeBytes: number }) => {
-    // In a real app we would use FormData to upload the actual file
-    // For this POC we simulate it with a JSON payload
+  uploadMaterial: (data: FormData) => {
     return fetchClient<Material>('/ai/materials', {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: data
     });
   },
 

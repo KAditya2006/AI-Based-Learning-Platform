@@ -9,6 +9,7 @@ export const ContentUpload = () => {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [uploading, setUploading] = useState(false);
   const [title, setTitle] = useState('');
+  const [file, setFile] = useState<File | null>(null);
 
   const loadMaterials = async () => {
     try {
@@ -27,14 +28,17 @@ export const ContentUpload = () => {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim() || !file) return;
     setUploading(true);
     try {
-      const newMat = await materialsApi.uploadMaterial({
-        title, filename: `${title.replace(/\s/g, '_')}.pdf`, mimeType: 'application/pdf', sizeBytes: 1048576
-      });
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('file', file);
+      
+      const newMat = await materialsApi.uploadMaterial(formData);
       await materialsApi.processMaterial(newMat._id);
       setTitle('');
+      setFile(null);
       await loadMaterials();
     } catch (error) {
       console.error(error);
@@ -70,10 +74,15 @@ export const ContentUpload = () => {
             </div>
             <div style={{ flex: '1 1 240px' }}>
               <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>Select File</label>
-              <input type="file" style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--bg-default)', color: 'var(--text-primary)', fontSize: 'var(--text-sm)', fontFamily: 'var(--font-sans)' }} />
+              <input 
+                type="file" 
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--bg-default)', color: 'var(--text-primary)', fontSize: 'var(--text-sm)', fontFamily: 'var(--font-sans)' }} 
+                required 
+              />
             </div>
             <div style={{ flexShrink: 0 }}>
-              <Button type="submit" disabled={uploading || !title.trim()} leftIcon={<Upload size={16} />}>
+              <Button type="submit" disabled={uploading || !title.trim() || !file} leftIcon={<Upload size={16} />}>
                 {uploading ? 'Processing...' : 'Upload & Parse'}
               </Button>
             </div>

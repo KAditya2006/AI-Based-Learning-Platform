@@ -1,9 +1,33 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { adminApi } from '../../api/admin';
 import { Button } from '../../components/ui/Button';
 import { AlertCircle, Calendar, CheckCircle, ChevronLeft, ChevronRight, Download, Filter, Settings, User } from 'lucide-react';
 
 
 export const AuditLogs = () => {
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        setLoading(true);
+        const data = await adminApi.getAuditLogs(page);
+        setLogs(data.items);
+        setTotalPages(data.totalPages);
+        setTotal(data.total);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLogs();
+  }, [page]);
+
   return (
     <div className="flex-1 p-lg md:p-xl bg-surface-bright overflow-y-auto font-body-md text-on-surface h-full animate-in fade-in duration-300">
       <div className="max-w-7xl mx-auto space-y-xl">
@@ -76,116 +100,62 @@ export const AuditLogs = () => {
                 </tr>
               </thead>
               <tbody className="font-body-md text-body-md divide-y divide-outline-variant/50">
-                {/* Row 1 */}
-                <tr className="hover:bg-surface-container-low transition-colors group cursor-pointer">
-                  <td className="p-md text-on-surface-variant whitespace-nowrap">2026-09-02 10:32:01 IST</td>
-                  <td className="p-md">
-                    <div className="flex items-center gap-sm">
-                      <User className="text-[18px] text-tertiary" />
-                      <span className="text-on-surface font-medium">Director General (Admin)</span>
-                    </div>
-                  </td>
-                  <td className="p-md text-on-surface">Updated Role Mapping</td>
-                  <td className="p-md text-on-surface-variant font-mono text-[13px]">usr_8f92a1b</td>
-                  <td className="p-md">
-                    <span className="inline-flex items-center gap-xs bg-primary-fixed-dim text-on-primary-fixed px-2 py-1 rounded font-label-caps text-[10px] uppercase">
-                      <CheckCircle className="text-[14px]" />
-                      Success
-                    </span>
-                  </td>
-                  <td className="p-md text-right">
-                    <button className="text-primary hover:text-secondary opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ChevronRight />
-                    </button>
-                  </td>
-                </tr>
-
-                {/* Row 2 */}
-                <tr className="hover:bg-surface-container-low transition-colors group cursor-pointer">
-                  <td className="p-md text-on-surface-variant whitespace-nowrap">2026-09-02 09:15:22 IST</td>
-                  <td className="p-md">
-                    <div className="flex items-center gap-sm">
-                      <Settings className="text-[18px] text-on-surface-variant" />
-                      <span className="text-on-surface font-medium">System (Auto-Sync)</span>
-                    </div>
-                  </td>
-                  <td className="p-md text-on-surface">Data Ingestion Started</td>
-                  <td className="p-md text-on-surface-variant font-mono text-[13px]">dataset_skills_q3</td>
-                  <td className="p-md">
-                    <span className="inline-flex items-center gap-xs bg-primary-fixed-dim text-on-primary-fixed px-2 py-1 rounded font-label-caps text-[10px] uppercase">
-                      <CheckCircle className="text-[14px]" />
-                      Success
-                    </span>
-                  </td>
-                  <td className="p-md text-right">
-                    <button className="text-primary hover:text-secondary opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ChevronRight />
-                    </button>
-                  </td>
-                </tr>
-
-                {/* Row 3 */}
-                <tr className="hover:bg-surface-container-low transition-colors group cursor-pointer bg-error-container/10">
-                  <td className="p-md text-on-surface-variant whitespace-nowrap">2026-09-02 08:45:10 IST</td>
-                  <td className="p-md">
-                    <div className="flex items-center gap-sm">
-                      <User className="text-[18px] text-tertiary" />
-                      <span className="text-on-surface font-medium">Unknown IP</span>
-                    </div>
-                  </td>
-                  <td className="p-md text-on-surface">Failed Login Attempt</td>
-                  <td className="p-md text-on-surface-variant font-mono text-[13px]">auth_endpoint</td>
-                  <td className="p-md">
-                    <span className="inline-flex items-center gap-xs bg-error-container text-on-error-container px-2 py-1 rounded font-label-caps text-[10px] uppercase">
-                      <AlertCircle className="text-[14px]" />
-                      Failure
-                    </span>
-                  </td>
-                  <td className="p-md text-right">
-                    <button className="text-primary hover:text-secondary opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ChevronRight />
-                    </button>
-                  </td>
-                </tr>
-
-                {/* Row 4 */}
-                <tr className="hover:bg-surface-container-low transition-colors group cursor-pointer">
-                  <td className="p-md text-on-surface-variant whitespace-nowrap">2026-09-02 07:20:05 IST</td>
-                  <td className="p-md">
-                    <div className="flex items-center gap-sm">
-                      <User className="text-[18px] text-tertiary" />
-                      <span className="text-on-surface font-medium">Statistical Officer (Admin)</span>
-                    </div>
-                  </td>
-                  <td className="p-md text-on-surface">Exported Compliance Report</td>
-                  <td className="p-md text-on-surface-variant font-mono text-[13px]">rep_annual_2026</td>
-                  <td className="p-md">
-                    <span className="inline-flex items-center gap-xs bg-primary-fixed-dim text-on-primary-fixed px-2 py-1 rounded font-label-caps text-[10px] uppercase">
-                      <CheckCircle className="text-[14px]" />
-                      Success
-                    </span>
-                  </td>
-                  <td className="p-md text-right">
-                    <button className="text-primary hover:text-secondary opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ChevronRight />
-                    </button>
-                  </td>
-                </tr>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="p-xl text-center text-on-surface-variant font-body-md">Loading logs...</td>
+                  </tr>
+                ) : logs.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-xl text-center text-on-surface-variant font-body-md">No audit logs found.</td>
+                  </tr>
+                ) : (
+                  logs.map((log: any) => (
+                    <tr key={log._id} className="hover:bg-surface-container-low transition-colors group cursor-pointer">
+                      <td className="p-md text-on-surface-variant whitespace-nowrap">{new Date(log.timestamp).toLocaleString()}</td>
+                      <td className="p-md">
+                        <div className="flex items-center gap-sm">
+                          {log.actorType === 'SYSTEM' ? (
+                            <Settings className="text-[18px] text-on-surface-variant" />
+                          ) : (
+                            <User className="text-[18px] text-tertiary" />
+                          )}
+                          <span className="text-on-surface font-medium">{log.actorName || log.actorType}</span>
+                        </div>
+                      </td>
+                      <td className="p-md text-on-surface">{log.action}</td>
+                      <td className="p-md text-on-surface-variant font-mono text-[13px]">{log.resourceId}</td>
+                      <td className="p-md">
+                        {log.status === 'SUCCESS' ? (
+                          <span className="inline-flex items-center gap-xs bg-primary-fixed-dim text-on-primary-fixed px-2 py-1 rounded font-label-caps text-[10px] uppercase">
+                            <CheckCircle className="text-[14px]" /> Success
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-xs bg-error-container text-on-error-container px-2 py-1 rounded font-label-caps text-[10px] uppercase">
+                            <AlertCircle className="text-[14px]" /> Failure
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-md text-right">
+                        <button className="text-primary hover:text-secondary opacity-0 group-hover:opacity-100 transition-opacity">
+                          <ChevronRight />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
           {/* Pagination */}
           <div className="border-t border-outline-variant p-md bg-surface-container-lowest flex items-center justify-between">
-            <span className="font-caption text-caption text-on-surface-variant">Showing 1 to 4 of 2,543 entries</span>
+            <span className="font-caption text-caption text-on-surface-variant">Showing page {page} of {totalPages} (Total: {total})</span>
             <div className="flex gap-sm">
-              <button className="p-xs text-on-surface-variant hover:bg-surface-container rounded transition-colors disabled:opacity-50" disabled>
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-xs text-on-surface-variant hover:bg-surface-container rounded transition-colors disabled:opacity-50">
                 <ChevronLeft className="text-[20px]" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container font-label-caps text-label-caps">1</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface font-label-caps text-label-caps transition-colors">2</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface font-label-caps text-label-caps transition-colors">3</button>
-              <button className="p-xs text-on-surface-variant hover:bg-surface-container rounded transition-colors">
+              <button className="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary-container font-label-caps text-label-caps">{page}</button>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages || totalPages === 0} className="p-xs text-on-surface-variant hover:bg-surface-container rounded transition-colors disabled:opacity-50">
                 <ChevronRight className="text-[20px]" />
               </button>
             </div>

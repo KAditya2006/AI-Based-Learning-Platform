@@ -6,7 +6,8 @@ import { Download, Filter, Gauge, TrendingUp, Users } from 'lucide-react';
 
 
 export const AdminAnalytics = () => {
-  const { data: analytics } = useSWR('/admin/analytics', fetchClient);
+  const { data: analyticsResp, isLoading } = useSWR('/admin/analytics', fetchClient);
+  const analytics = (analyticsResp as any)?.data;
 
   return (
     <div className="flex-1 p-lg md:p-xl max-w-[1400px] mx-auto w-full space-y-xl font-body-md text-on-surface bg-background min-h-full animate-in fade-in duration-300">
@@ -47,22 +48,22 @@ export const AdminAnalytics = () => {
             <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">Total Workforce</span>
             <Users className="text-tertiary" />
           </div>
-          <div className="font-display-lg text-display-lg text-on-surface">{(analytics as any)?.totalLearners || '14,285'}</div>
+          <div className="font-display-lg text-display-lg text-on-surface">{isLoading ? '...' : analytics?.workforce?.totalUsers || '0'}</div>
           <div className="flex items-center gap-xs mt-sm text-secondary-container">
             <TrendingUp className="text-[16px]" />
-            <span className="font-caption text-caption">+2.4% from last quarter</span>
+            <span className="font-caption text-caption">Active: {analytics?.workforce?.activeLearners || 0}</span>
           </div>
         </div>
 
         <div className="col-span-12 md:col-span-3 bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-grounded">
           <div className="flex justify-between items-start mb-md">
-            <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">Avg. Readiness Score</span>
-            <Gauge className="text-tertiary" />
+            <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">Critical Skill Gaps</span>
+            <Gauge className="text-error" />
           </div>
-          <div className="font-display-lg text-display-lg text-on-surface">76/100</div>
+          <div className="font-display-lg text-display-lg text-on-surface">{isLoading ? '...' : analytics?.workforce?.criticalGaps || '0'}</div>
           <div className="flex items-center gap-xs mt-sm text-secondary-container">
             <TrendingUp className="text-[16px]" />
-            <span className="font-caption text-caption">+1.1 pts from last quarter</span>
+            <span className="font-caption text-caption">Identified priority areas</span>
           </div>
         </div>
 
@@ -70,9 +71,9 @@ export const AdminAnalytics = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-surface-container-lowest to-surface-container-low opacity-50 z-0"></div>
           <div className="relative z-10">
             <h3 className="font-headline-md text-headline-md text-on-surface mb-sm">AI Skill Assessment Initiative</h3>
-            <p className="font-body-md text-body-md text-on-surface-variant max-w-md">The rollout of the new AI assessment tool is currently 65% complete across all departments. Review pending evaluations.</p>
+            <p className="font-body-md text-body-md text-on-surface-variant max-w-md">The rollout of the new AI assessment tool is currently {analytics?.workforce?.coverageRate || 0}% complete across all departments. Review pending evaluations.</p>
             <div className="mt-md w-full bg-surface-container h-2 rounded-full overflow-hidden">
-              <div className="bg-primary h-full rounded-full" style={{ width: '65%' }}></div>
+              <div className="bg-primary h-full rounded-full" style={{ width: `${analytics?.workforce?.coverageRate || 0}%` }}></div>
             </div>
           </div>
         </div>
@@ -102,51 +103,30 @@ export const AdminAnalytics = () => {
             <p className="font-caption text-caption text-on-surface-variant">Prioritized by institutional impact</p>
           </div>
           <div className="flex-1 flex flex-col justify-around gap-md">
-            {/* Bar 1 */}
-            <div>
-              <div className="flex justify-between font-label-caps text-label-caps mb-xs uppercase">
-                <span className="text-on-surface">Data Analysis</span>
-                <span className="text-error">High Priority</span>
-              </div>
-              <div className="w-full bg-surface-container h-4 rounded-sm overflow-hidden flex">
-                <div className="bg-tertiary-container h-full" style={{ width: '40%' }}></div>
-                <div className="bg-error-container h-full border-l border-surface-container-lowest" style={{ width: '60%' }}></div>
-              </div>
-              <div className="flex justify-between font-caption text-caption text-on-surface-variant mt-xs">
-                <span>Current: 40%</span>
-                <span>Target: 100%</span>
-              </div>
-            </div>
-            {/* Bar 2 */}
-            <div>
-              <div className="flex justify-between font-label-caps text-label-caps mb-xs uppercase">
-                <span className="text-on-surface">Cloud Architecture</span>
-                <span className="text-secondary-container">Med Priority</span>
-              </div>
-              <div className="w-full bg-surface-container h-4 rounded-sm overflow-hidden flex">
-                <div className="bg-tertiary-container h-full" style={{ width: '65%' }}></div>
-                <div className="bg-secondary-fixed-dim h-full border-l border-surface-container-lowest" style={{ width: '35%' }}></div>
-              </div>
-              <div className="flex justify-between font-caption text-caption text-on-surface-variant mt-xs">
-                <span>Current: 65%</span>
-                <span>Target: 100%</span>
-              </div>
-            </div>
-            {/* Bar 3 */}
-            <div>
-              <div className="flex justify-between font-label-caps text-label-caps mb-xs uppercase">
-                <span className="text-on-surface">Project Management</span>
-                <span className="text-on-surface-variant">Low Priority</span>
-              </div>
-              <div className="w-full bg-surface-container h-4 rounded-sm overflow-hidden flex">
-                <div className="bg-tertiary-container h-full" style={{ width: '85%' }}></div>
-                <div className="bg-surface-variant h-full border-l border-surface-container-lowest" style={{ width: '15%' }}></div>
-              </div>
-              <div className="flex justify-between font-caption text-caption text-on-surface-variant mt-xs">
-                <span>Current: 85%</span>
-                <span>Target: 100%</span>
-              </div>
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full text-on-surface-variant">Loading...</div>
+            ) : analytics?.skills?.topGaps?.length > 0 ? (
+              analytics.skills.topGaps.slice(0, 4).map((gap: any, index: number) => (
+                <div key={index}>
+                  <div className="flex justify-between font-label-caps text-label-caps mb-xs uppercase">
+                    <span className="text-on-surface">{gap.name}</span>
+                    <span className={gap.avgGap > 2 ? 'text-error' : 'text-secondary-container'}>
+                      {gap.avgGap > 2 ? 'High Priority' : 'Med Priority'}
+                    </span>
+                  </div>
+                  <div className="w-full bg-surface-container h-4 rounded-sm overflow-hidden flex">
+                    <div className="bg-tertiary-container h-full" style={{ width: `${Math.max(0, 100 - (gap.avgGap * 20))}%` }}></div>
+                    <div className={gap.avgGap > 2 ? 'bg-error-container h-full border-l border-surface-container-lowest' : 'bg-secondary-fixed-dim h-full border-l border-surface-container-lowest'} style={{ width: `${Math.min(100, gap.avgGap * 20)}%` }}></div>
+                  </div>
+                  <div className="flex justify-between font-caption text-caption text-on-surface-variant mt-xs">
+                    <span>Avg Gap: {gap.avgGap.toFixed(1)} lvls</span>
+                    <span>Affected: {gap.count}</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-on-surface-variant p-md bg-surface-container rounded-lg">No critical skill gaps identified yet.</div>
+            )}
           </div>
         </div>
 
@@ -175,27 +155,25 @@ export const AdminAnalytics = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr className="hover:bg-surface-container-low transition-colors group border-b border-outline-variant border-dashed">
-                  <td className="p-sm font-body-md text-body-md text-on-surface">Economic Statistics Wing</td>
-                  <td className="p-sm text-center"><div className="w-full h-8 bg-primary-container rounded-sm flex items-center justify-center text-on-primary-container font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">88</div></td>
-                  <td className="p-sm text-center"><div className="w-full h-8 bg-secondary-fixed rounded-sm flex items-center justify-center text-on-surface font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">72</div></td>
-                  <td className="p-sm text-center"><div className="w-full h-8 bg-surface-container rounded-sm flex items-center justify-center text-on-surface font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">55</div></td>
-                  <td className="p-sm text-center"><div className="w-full h-8 bg-secondary-fixed rounded-sm flex items-center justify-center text-on-surface font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">68</div></td>
-                </tr>
-                <tr className="hover:bg-surface-container-low transition-colors group border-b border-outline-variant border-dashed">
-                  <td className="p-sm font-body-md text-body-md text-on-surface">Data Informatics Division</td>
-                  <td className="p-sm text-center"><div className="w-full h-8 bg-secondary-fixed rounded-sm flex items-center justify-center text-on-surface font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">70</div></td>
-                  <td className="p-sm text-center"><div className="w-full h-8 bg-primary-container rounded-sm flex items-center justify-center text-on-primary-container font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">95</div></td>
-                  <td className="p-sm text-center"><div className="w-full h-8 bg-surface-container rounded-sm flex items-center justify-center text-on-surface font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">45</div></td>
-                  <td className="p-sm text-center"><div className="w-full h-8 bg-secondary-fixed rounded-sm flex items-center justify-center text-on-surface font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">62</div></td>
-                </tr>
-                <tr className="hover:bg-surface-container-low transition-colors group">
-                  <td className="p-sm font-body-md text-body-md text-on-surface">National Accounts Division</td>
-                  <td className="p-sm text-center"><div className="w-full h-8 bg-primary-container rounded-sm flex items-center justify-center text-on-primary-container font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">82</div></td>
-                  <td className="p-sm text-center"><div className="w-full h-8 bg-surface-container rounded-sm flex items-center justify-center text-on-surface font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">30</div></td>
-                  <td className="p-sm text-center"><div className="w-full h-8 bg-primary-container rounded-sm flex items-center justify-center text-on-primary-container font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">92</div></td>
-                  <td className="p-sm text-center"><div className="w-full h-8 bg-primary-container rounded-sm flex items-center justify-center text-on-primary-container font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">85</div></td>
-                </tr>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={5} className="p-sm text-center text-on-surface-variant">Loading...</td>
+                  </tr>
+                ) : analytics?.workforce?.departments?.length > 0 ? (
+                  analytics.workforce.departments.slice(0, 5).map((dept: any, index: number) => (
+                    <tr key={index} className="hover:bg-surface-container-low transition-colors group border-b border-outline-variant border-dashed">
+                      <td className="p-sm font-body-md text-body-md text-on-surface">{dept._id || 'Unassigned'}</td>
+                      <td className="p-sm text-center"><div className="w-full h-8 bg-surface-container rounded-sm flex items-center justify-center text-on-surface font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">N/A</div></td>
+                      <td className="p-sm text-center"><div className="w-full h-8 bg-surface-container rounded-sm flex items-center justify-center text-on-surface font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">N/A</div></td>
+                      <td className="p-sm text-center"><div className="w-full h-8 bg-surface-container rounded-sm flex items-center justify-center text-on-surface font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">N/A</div></td>
+                      <td className="p-sm text-center"><div className="w-full h-8 bg-surface-container rounded-sm flex items-center justify-center text-on-surface font-caption text-caption opacity-90 group-hover:opacity-100 transition-opacity cursor-pointer">N/A</div></td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="p-sm text-center text-on-surface-variant bg-surface-container rounded">No department data available.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

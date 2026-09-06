@@ -9,14 +9,14 @@ import { ChevronLeft, ChevronRight, Download, Lock, Search, UserPlus } from 'luc
 
 export const Workforce = () => {
   const navigate = useNavigate();
-  const { data, error, isLoading, mutate } = useSWR<WorkforceMember[]>('/admin/users', adminApi.getWorkforce);
+  const { data, error, isLoading, mutate } = useSWR('/admin/users', adminApi.getWorkforce);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const workforce = data || [];
+  const workforce = (data as any)?.items || [];
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedIds(new Set(workforce.map(m => m._id || m.id || '')));
+      setSelectedIds(new Set(workforce.map((m: any) => m._id || m.id || '')));
     } else {
       setSelectedIds(new Set());
     }
@@ -135,11 +135,13 @@ export const Workforce = () => {
                 ) : workforce.length === 0 ? (
                   <tr><td colSpan={7} className="p-8 text-center text-on-surface-variant">No workforce members found.</td></tr>
                 ) : (
-                  workforce.map(member => {
-                    const memberName = member.name || (member.firstName ? `${member.firstName} ${member.lastName || ''}`.trim() : 'Official');
+                  workforce.map((member: any) => {
+                    const memberName = (member.profile?.firstName ? `${member.profile.firstName} ${member.profile.lastName || ''}`.trim() : member.name) || 'Official';
                     const memberId = member._id || member.id || '';
-                    const memberDept = typeof member.department === 'object' ? member.department?.name : (member.department || 'General');
-                    const memberRole = typeof member.designation === 'object' ? member.designation?.name : (member.role || 'Officer');
+                    const memberDept = member.profile?.departmentName || 'General';
+                    const memberRole = member.profile?.designationName || member.role || 'Officer';
+                    const memberSystemRole = member.role || 'LEARNER';
+                    const memberStatus = member.status || 'ACTIVE';
                     const initials = memberName.split(' ').map((n: string) => n[0]).join('').substring(0,2).toUpperCase();
 
                     return (
@@ -171,11 +173,13 @@ export const Workforce = () => {
                         <td className="p-md text-on-surface-variant">{memberDept}</td>
                         <td className="p-md">
                           <span className="inline-flex items-center px-2 py-1 rounded bg-surface-container-high text-on-surface text-xs font-medium border border-outline-variant font-label-caps uppercase">
-                            <Lock className="text-[14px] mr-1" /> {memberRole === 'Admin' ? 'Tier 4' : 'Tier 2'}
+                            <Lock className="text-[14px] mr-1" /> {memberSystemRole}
                           </span>
                         </td>
                         <td className="p-md">
-                          <span className="bg-primary text-on-primary px-sm py-xs rounded font-label-caps text-label-caps uppercase">Certified</span>
+                          <span className={`px-sm py-xs rounded font-label-caps text-label-caps uppercase ${memberStatus === 'ACTIVE' ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant border border-outline-variant'}`}>
+                            {memberStatus}
+                          </span>
                         </td>
                         <td className="p-md text-right opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                           <button onClick={() => navigate(`/admin/workforce/${memberId}`)} className="text-primary hover:text-secondary p-1 rounded">
@@ -192,7 +196,7 @@ export const Workforce = () => {
 
           {/* Pagination */}
           <div className="border-t border-outline-variant p-md bg-surface-container-lowest flex items-center justify-between">
-            <span className="font-caption text-caption text-on-surface-variant">Showing 1 to {workforce.length} of {workforce.length} personnel</span>
+            <span className="font-caption text-caption text-on-surface-variant">Showing {(data as any)?.page || 1} of {(data as any)?.totalPages || 1} pages ({(data as any)?.total || workforce.length} total)</span>
             <div className="flex gap-sm">
               <button className="p-xs text-on-surface-variant hover:bg-surface-container rounded transition-colors disabled:opacity-50" disabled>
                 <ChevronLeft className="text-[20px]" />

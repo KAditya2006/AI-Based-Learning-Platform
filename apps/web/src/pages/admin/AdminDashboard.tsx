@@ -33,7 +33,7 @@ export const AdminDashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-lg mb-xl">
         <div className="bg-surface-container-lowest p-md rounded-lg card-border shadow-grounded interactive-card cursor-pointer">
           <div className="font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Total Officials</div>
-          <div className="font-headline-md text-headline-md text-on-surface">{(analytics as any)?.totalLearners || '12,450'}</div>
+          <div className="font-headline-md text-headline-md text-on-surface">{(analytics as any)?.workforce?.totalUsers || 0}</div>
           <div className="font-caption text-caption text-secondary mt-xs flex items-center gap-xs">
             <TrendingUp className="text-[14px]" /> +2.4% this quarter
           </div>
@@ -41,7 +41,7 @@ export const AdminDashboard = () => {
 
         <div className="bg-surface-container-lowest p-md rounded-lg card-border shadow-grounded interactive-card cursor-pointer">
           <div className="font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Active Learners</div>
-          <div className="font-headline-md text-headline-md text-on-surface">{(analytics as any)?.activeLearners || '8,920'}</div>
+          <div className="font-headline-md text-headline-md text-on-surface">{(analytics as any)?.workforce?.activeLearners || 0}</div>
           <div className="font-caption text-caption text-secondary mt-xs flex items-center gap-xs">
             <TrendingUp className="text-[14px]" /> +5.1% this quarter
           </div>
@@ -49,15 +49,15 @@ export const AdminDashboard = () => {
 
         <div className="bg-surface-container-lowest p-md rounded-lg card-border shadow-grounded interactive-card cursor-pointer">
           <div className="font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Competency Coverage</div>
-          <div className="font-headline-md text-headline-md text-on-surface">{(analytics as any)?.coverageRate ? `${(analytics as any).coverageRate}%` : '76%'}</div>
+          <div className="font-headline-md text-headline-md text-on-surface">{(analytics as any)?.workforce?.coverageRate || 0}%</div>
           <div className="w-full bg-surface-container-high h-2 mt-sm rounded-full overflow-hidden">
-            <div className="bg-primary h-full rounded-full" style={{ width: (analytics as any)?.coverageRate ? `${(analytics as any).coverageRate}%` : '76%' }}></div>
+            <div className="bg-primary h-full rounded-full" style={{ width: `${(analytics as any)?.workforce?.coverageRate || 0}%` }}></div>
           </div>
         </div>
 
         <div className="bg-surface-container-lowest p-md rounded-lg card-border shadow-grounded interactive-card border-l-4 border-l-error cursor-pointer">
           <div className="font-label-caps text-label-caps text-error mb-xs uppercase">Critical Gaps</div>
-          <div className="font-headline-md text-headline-md text-on-surface">{(analytics as any)?.criticalGaps || '34'}</div>
+          <div className="font-headline-md text-headline-md text-on-surface">{(analytics as any)?.workforce?.criticalGaps || 0}</div>
           <div className="font-caption text-caption text-error mt-xs flex items-center gap-xs">
             <AlertTriangle className="text-[14px]" /> Requires immediate action
           </div>
@@ -73,49 +73,34 @@ export const AdminDashboard = () => {
           </div>
           <div className="flex-1 flex flex-col justify-center items-center py-xl">
             <div className="w-full space-y-md max-w-lg">
-              <div>
-                <div className="flex justify-between text-body-md text-on-surface mb-1">
-                  <span>Economic Statistics Wing</span>
-                  <span className="font-semibold">88%</span>
-                </div>
-                <div className="w-full bg-surface-variant h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-primary h-full rounded-full" style={{ width: '88%' }}></div>
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-body-md text-on-surface mb-1">
-                  <span>Social Statistics Division</span>
-                  <span className="font-semibold">72%</span>
-                </div>
-                <div className="w-full bg-surface-variant h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-secondary h-full rounded-full" style={{ width: '72%' }}></div>
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-body-md text-on-surface mb-1">
-                  <span>National Accounts Division</span>
-                  <span className="font-semibold">64%</span>
-                </div>
-                <div className="w-full bg-surface-variant h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-primary-container h-full rounded-full" style={{ width: '64%' }}></div>
-                </div>
-              </div>
+              {((analytics as any)?.workforce?.departments || []).length > 0 ? (
+                ((analytics as any).workforce.departments).slice(0, 5).map((dept: any, idx: number) => {
+                  const percentage = Math.round((dept.count / (analytics as any).workforce.totalUsers) * 100) || 0;
+                  const bgColors = ['bg-primary', 'bg-secondary', 'bg-tertiary', 'bg-primary-container', 'bg-secondary-container'];
+                  return (
+                    <div key={dept._id || idx}>
+                      <div className="flex justify-between text-body-md text-on-surface mb-1">
+                        <span>{dept._id || 'Unassigned'}</span>
+                        <span className="font-semibold">{percentage}%</span>
+                      </div>
+                      <div className="w-full bg-surface-variant h-2.5 rounded-full overflow-hidden">
+                        <div className={`${bgColors[idx % bgColors.length]} h-full rounded-full`} style={{ width: `${percentage}%` }}></div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-center text-on-surface-variant py-xl">No departmental data available.</div>
+              )}
             </div>
           </div>
         </div>
 
         <div className="bg-surface-container-lowest rounded-lg card-border p-lg shadow-grounded min-h-[400px]">
           <h3 className="font-headline-sm text-headline-sm text-on-surface mb-md border-b border-surface-variant pb-sm">Recent Alerts</h3>
-          <div className="space-y-md">
-            <div className="p-sm bg-error-container bg-opacity-20 rounded border border-error">
-              <p className="font-label-caps text-error uppercase">Security Clearance</p>
-              <p className="font-body-md text-on-surface mt-xs">12 officials require renewal this month.</p>
+            <div className="p-sm text-center text-on-surface-variant mt-xl">
+              No recent alerts available.
             </div>
-            <div className="p-sm bg-surface-container-low rounded border border-surface-variant">
-              <p className="font-label-caps text-primary uppercase">New Content</p>
-              <p className="font-body-md text-on-surface mt-xs">Data Science curriculum successfully parsed by AI Studio.</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

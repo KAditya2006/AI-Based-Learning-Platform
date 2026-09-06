@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getWorkforce, getUserById, getAdminCompetencies, createAdminCompetency, updateAdminCompetency, getAnalytics } from '../controllers/adminController';
+import { getWorkforce, getUserById, getAdminCompetencies, createAdminCompetency, updateAdminCompetency, getAnalytics, createUser, updateUser, deleteUser, getAuditLogs } from '../controllers/adminController';
 import { authenticate } from '../middleware/auth';
 import { authorize } from '../middleware/authorize';
 import { validateRequest } from '../middleware/validate';
@@ -14,7 +14,12 @@ router.use(authenticate, authorize([UserRole.ADMIN]));
 router.get('/analytics', getAnalytics);
 
 router.get('/users', getWorkforce);
+router.post('/users', createUser);
 router.get('/users/:id', getUserById);
+router.patch('/users/:id', updateUser);
+router.delete('/users/:id', deleteUser);
+
+router.get('/audit-logs', getAuditLogs);
 
 router.get('/competencies', getAdminCompetencies);
 router.post('/competencies', validateRequest(createCompetencySchema), createAdminCompetency);

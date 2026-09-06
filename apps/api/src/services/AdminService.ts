@@ -16,7 +16,12 @@ export class AdminService {
       { $sort: { count: -1 } }
     ]);
 
-    return { totalUsers, departments, roles };
+    const activeLearners = await User.countDocuments({ role: 'LEARNER', status: 'ACTIVE' });
+    const assessedUsersCount = await Profile.countDocuments({ onboardingStatus: 'COMPLETED' });
+    const coverageRate = activeLearners > 0 ? Math.round((assessedUsersCount / activeLearners) * 100) : 0;
+    const criticalGaps = await SkillGap.countDocuments({ gapSize: { $gt: 2 } });
+
+    return { totalUsers, activeLearners, coverageRate, criticalGaps, departments, roles };
   }
 
   static async getSkillGapAnalytics() {
